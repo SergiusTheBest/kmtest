@@ -1,0 +1,11 @@
+/bin
+/obj
+/lib
+/samples/ipch
+/samples/*.suo
+/samples/*.sdf
+/samples/*.VC.db
+/samples/*.VC.opendb
+/samples/*.opensdf
+/samples/.vs
+*.user
