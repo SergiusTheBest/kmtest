@@ -144,18 +144,18 @@ namespace ktest
     }
 }
 
-DRIVER_UNLOAD Unload;
+DRIVER_UNLOAD DriverUnload;
 
-VOID Unload(_In_ DRIVER_OBJECT*) 
+inline void DriverUnload(_In_ DRIVER_OBJECT*)
 {
 }
 
 extern "C" DRIVER_INITIALIZE DriverEntry;
 
 extern "C" inline NTSTATUS DriverEntry(_In_ DRIVER_OBJECT* driverObject, _In_ PUNICODE_STRING)
-{    
+{
     ktest::run();
 
-    driverObject->DriverUnload = Unload;
+    driverObject->DriverUnload = DriverUnload;
     return STATUS_SUCCESS;
 }
