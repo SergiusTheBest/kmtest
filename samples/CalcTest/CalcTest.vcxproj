@@ -138,8 +138,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Calculator.cpp" />
-    <ClCompile Include="TestAdd.cpp" />
-    <ClCompile Include="TestSub.cpp" />
+    <ClCompile Include="AddTest.cpp" />
+    <ClCompile Include="MulTest.cpp" />
+    <ClCompile Include="SubTest.cpp" />
     <ClCompile Include="StdAfx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>

@@ -8,11 +8,11 @@
 #define SCENARIO(name) \
     namespace ktest \
     { \
-        static void KTEST_MAKE_ID(testFunc)(Clause curClause, Clause& nextClause, ClauseDesc& clauseDesc); \
-        static void KTEST_MAKE_ID(testFuncStub)(Clause curClause, Clause& nextClause, ClauseDesc& clauseDesc) \
+        static void KTEST_MAKE_ID(testFunc)(Clause curClause, Clause& nextClause, bool nextClauseSet = false); \
+        static void KTEST_MAKE_ID(testFuncStub)(Clause curClause, Clause& nextClause) \
         { \
-            clauseDesc.scenario = name; \
-            KTEST_MAKE_ID(testFunc)(curClause, nextClause, clauseDesc); \
+            if (curClause == Clause()) reportScenarioBegin(name); \
+            KTEST_MAKE_ID(testFunc)(curClause, nextClause); \
         } \
         namespace \
         { \
@@ -20,22 +20,23 @@
             __declspec(dllexport) __declspec(allocate("KTEST$__m")) auto KTEST_MAKE_ID(testEntryPtr) = reinterpret_cast<const TestEntry*>(&KTEST_MAKE_ID(testEntry)); \
         } \
     } \
-    static void KTEST_MAKE_ID(ktest::testFunc)(Clause curClause, Clause& nextClause, ClauseDesc& clauseDesc)
+    __pragma(warning(suppress: 4100 /*unreferenced formal parameter*/)) \
+    static void KTEST_MAKE_ID(ktest::testFunc)(Clause curClause, Clause& nextClause, bool nextClauseSet)
 
 #define GIVEN(desc) \
     if (curClause.given == 0) curClause.given = __LINE__; \
-    if (curClause.given < __LINE__) { nextClause.given = __LINE__; nextClause.when = nextClause.then = 0; return; } \
-    else if ((clauseDesc.given = desc, curClause.given) == __LINE__)
+    if (curClause.given < __LINE__ && !nextClauseSet) { nextClause.given = __LINE__; nextClause.when = nextClause.then = 0; nextClauseSet = true; } \
+    else if (__LINE__ == curClause.given && reportGiven(desc))
 
 #define WHEN(desc) \
     if (curClause.when == 0) curClause.when = __LINE__; \
-    if (curClause.when < __LINE__) { nextClause.when = __LINE__; nextClause.then = 0; return; } \
-    else if ((clauseDesc.when = desc, curClause.when) == __LINE__)
+    if (curClause.when < __LINE__ && !nextClauseSet) { nextClause.when = __LINE__; nextClause.then = 0; nextClauseSet = true; } \
+    else if (__LINE__ == curClause.when && reportWhen(desc))
 
 #define THEN(desc) \
     if (curClause.then == 0) curClause.then = __LINE__; \
-    if (curClause.then < __LINE__) { nextClause.then = __LINE__; return; } \
-    else if ((clauseDesc.then = desc, curClause.then) ==  __LINE__)
+    if (curClause.then < __LINE__ && !nextClauseSet) { nextClause.then = __LINE__; nextClauseSet = true; } \
+    else if (__LINE__ == curClause.then && reportThen(desc))
 
 #define REQUIRE(expression) \
     if (!(expression)) \
@@ -50,6 +51,36 @@
 
 namespace ktest
 {
+    inline void reportScenarioBegin(const char* scenario)
+    {
+        DbgPrint("--------------------------------------------------\n");
+        DbgPrint("SCENARIO: %s\n", scenario);
+        DbgPrint("--------------------------------------------------\n");
+    }
+
+    inline void reportScenarioEnd()
+    {
+        DbgPrint("\n");
+    }
+
+    inline bool reportGiven(const char* given)
+    {
+        DbgPrint("GIVEN: %s\n", given);
+        return true;
+    }
+
+    inline bool reportWhen(const char* when)
+    {
+        DbgPrint("  WHEN: %s\n", when);
+        return true;
+    }
+
+    inline bool reportThen(const char* then)
+    {
+        DbgPrint("    THEN: %s\n", then);
+        return true;
+    }
+
     struct Clause
     {
         int given;
@@ -62,41 +93,19 @@ namespace ktest
         }
     };
 
-    struct ClauseDesc
-    {
-        const char* scenario;
-        const char* given;
-        const char* when;
-        const char* then;
-    };
-
-    typedef void(*TestFunc)(Clause curClause, Clause& nextClause, ClauseDesc& clauseDesc);
+    typedef void(*TestFunc)(Clause curClause, Clause& nextClause);
 
     class TestEntry
     {
     public:
         void run() const
         {
-            DbgPrint("--------------------------------------------------\n");
-
-            ClauseDesc clauseDesc = {};
             Clause curClause = {};
+            Clause nextClause = {};
 
-            for (int i = 0;; ++i)
+            for (;;)
             {
-                Clause nextClause = curClause;
-
-                m_func(curClause, nextClause, clauseDesc);
-
-                if (0 == i)
-                {
-                    DbgPrint("SCENARIO: %s\n", clauseDesc.scenario);
-                    DbgPrint("--------------------------------------------------\n");
-                }
-
-                DbgPrint("GIVEN: %s\n", clauseDesc.given);
-                DbgPrint("  WHEN: %s\n", clauseDesc.when);
-                DbgPrint("    THEN: %s\n", clauseDesc.then);
+                m_func(curClause, nextClause);
 
                 if (nextClause == curClause)
                 {
@@ -106,7 +115,7 @@ namespace ktest
                 curClause = nextClause;
             }
 
-            DbgPrint("\n");
+            reportScenarioEnd();
         }
 
     private:

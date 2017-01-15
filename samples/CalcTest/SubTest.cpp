@@ -1,6 +1,7 @@
 #include "StdAfx.h"
 #include "Calculator.h"
 
+// Just one more sample scenario (very close to "addition operation").
 SCENARIO("Subtraction operation")
 {
     GIVEN("x = 8")

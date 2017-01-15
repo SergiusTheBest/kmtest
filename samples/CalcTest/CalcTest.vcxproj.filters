@@ -18,10 +18,13 @@
     <ClCompile Include="Calculator.cpp">
       <Filter>Main</Filter>
     </ClCompile>
-    <ClCompile Include="TestAdd.cpp">
+    <ClCompile Include="AddTest.cpp">
       <Filter>Main</Filter>
     </ClCompile>
-    <ClCompile Include="TestSub.cpp">
+    <ClCompile Include="SubTest.cpp">
+      <Filter>Main</Filter>
+    </ClCompile>
+    <ClCompile Include="MulTest.cpp">
       <Filter>Main</Filter>
     </ClCompile>
   </ItemGroup>

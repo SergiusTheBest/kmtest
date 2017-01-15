@@ -10,3 +10,8 @@ int Calculator::sub(int x, int y)
 {
     return x - y;
 }
+
+long long Calculator::mul(int x, int y)
+{
+    return x * y;
+}

@@ -1,6 +1,7 @@
 @echo off
-sc delete CalcTest > nul
-sc create CalcTest binPath= "%cd%\CalcTest.sys" type= kernel
-sc start CalcTest
-sc stop CalcTest
-sc delete CalcTest
+set test=CalcTest
+sc delete %test% > nul
+sc create %test% binPath= "%cd%\%test%.sys" type= kernel
+sc start %test%
+sc stop %test%
+sc delete %test%
