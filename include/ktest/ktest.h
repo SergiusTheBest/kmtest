@@ -94,7 +94,7 @@ namespace ktest
         }
     };
 
-    typedef void(*TestFunc)(Clause curClause, Clause& nextClause, int& assertionCount);
+    typedef void(*TestFunc)(Clause curClause, Clause& nextClause, int& assertions);
 
     class TestEntry
     {
