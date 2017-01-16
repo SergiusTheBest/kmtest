@@ -8,11 +8,11 @@
 #define SCENARIO(name) \
     namespace ktest \
     { \
-        static void KTEST_MAKE_ID(testFunc)(Clause curClause, Clause& nextClause, bool nextClauseSet = false); \
-        static void KTEST_MAKE_ID(testFuncStub)(Clause curClause, Clause& nextClause) \
+        static void KTEST_MAKE_ID(testFunc)(Clause curClause, Clause& nextClause, int& assertions, bool nextClauseSet = false); \
+        static void KTEST_MAKE_ID(testFuncStub)(Clause curClause, Clause& nextClause, int& assertions) \
         { \
             if (curClause == Clause()) reportScenarioBegin(name); \
-            KTEST_MAKE_ID(testFunc)(curClause, nextClause); \
+            KTEST_MAKE_ID(testFunc)(curClause, nextClause, assertions); \
         } \
         namespace \
         { \
@@ -21,7 +21,7 @@
         } \
     } \
     __pragma(warning(suppress: 4100 /*unreferenced formal parameter*/)) \
-    static void KTEST_MAKE_ID(ktest::testFunc)(Clause curClause, Clause& nextClause, bool nextClauseSet)
+    static void KTEST_MAKE_ID(ktest::testFunc)(Clause curClause, Clause& nextClause, int& assertions, bool nextClauseSet)
 
 #define GIVEN(desc) \
     if (curClause.given == 0) curClause.given = __LINE__; \
@@ -39,6 +39,7 @@
     else if (__LINE__ == curClause.then && reportThen(desc))
 
 #define REQUIRE(expression) \
+    ++assertions; \
     if (!(expression)) \
     { \
         ::RtlAssert(#expression, __FILE__, __LINE__, nullptr); \
@@ -58,9 +59,9 @@ namespace ktest
         DbgPrint("--------------------------------------------------\n");
     }
 
-    inline void reportScenarioEnd()
+    inline void reportScenarioEnd(int assertions)
     {
-        DbgPrint("\n");
+        DbgPrint("\nASSERTIONS PASSED: %d\n\n", assertions);
     }
 
     inline bool reportGiven(const char* given)
@@ -93,19 +94,20 @@ namespace ktest
         }
     };
 
-    typedef void(*TestFunc)(Clause curClause, Clause& nextClause);
+    typedef void(*TestFunc)(Clause curClause, Clause& nextClause, int& assertionCount);
 
     class TestEntry
     {
     public:
-        void run() const
+        void run(int& assertions) const
         {
             Clause curClause = {};
             Clause nextClause = {};
+            int localAssertions = 0;
 
             for (;;)
             {
-                m_func(curClause, nextClause);
+                m_func(curClause, nextClause, localAssertions);
 
                 if (nextClause == curClause)
                 {
@@ -115,7 +117,8 @@ namespace ktest
                 curClause = nextClause;
             }
 
-            reportScenarioEnd();
+            reportScenarioEnd(localAssertions);
+            assertions += localAssertions;
         }
 
     private:
@@ -135,6 +138,7 @@ namespace ktest
         DbgPrint("**************************************************\n");
 
         int scenarios = 0;
+        int assertions = 0;
 
         for (const TestEntry** testEntry = &testEntryA; testEntry < &testEntryZ; ++testEntry)
         {
@@ -143,12 +147,12 @@ namespace ktest
                 continue;
             }
 
-            (*testEntry)->run();
+            (*testEntry)->run(assertions);
             ++scenarios;
         }
 
         DbgPrint("**************************************************\n");
-        DbgPrint("* KTEST END (scenarios: %d)\n", scenarios);
+        DbgPrint("* KTEST END (scenarios: %d, assertions: %d)\n", scenarios, assertions);
         DbgPrint("**************************************************\n");
     }
 }
