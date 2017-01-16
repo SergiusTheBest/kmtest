@@ -18,7 +18,7 @@ SCENARIO("Addition operation")
 
             THEN("the sum will be 5") // Actually you can write several THEN clauses but it has no much sense. So stick to one THEN clause.
             {
-                REQUIRE(Calculator::add(x, y) == 5); // This is a test assertition macro. They can be placed in any clause: SCENARIO, GIVEN, WHEN, THEN.
+                REQUIRE(Calculator::add(x, y) == 5); // This is a test assertion macro. They can be placed in any clause: SCENARIO, GIVEN, WHEN, THEN.
             }
 
             // <== Here you can write a shared cleanup code for WHEN.
