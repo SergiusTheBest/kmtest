@@ -1,31 +1,34 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="Main">
-      <UniqueIdentifier>{a23ac890-9761-4399-ab7b-67498e632f9c}</UniqueIdentifier>
-    </Filter>
     <Filter Include="StdAfx">
       <UniqueIdentifier>{3b9c4901-b36b-4aab-b57c-454e4873f86b}</UniqueIdentifier>
     </Filter>
     <Filter Include="Script">
       <UniqueIdentifier>{25580a65-67c9-47de-b2cd-476aa7e6a4a2}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Calculator">
+      <UniqueIdentifier>{950e6de6-3ec8-4c53-a1fc-c4f6c6adfe10}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Tests">
+      <UniqueIdentifier>{a23ac890-9761-4399-ab7b-67498e632f9c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="StdAfx.cpp">
       <Filter>StdAfx</Filter>
     </ClCompile>
-    <ClCompile Include="Calculator.cpp">
-      <Filter>Main</Filter>
-    </ClCompile>
     <ClCompile Include="AddTest.cpp">
-      <Filter>Main</Filter>
+      <Filter>Tests</Filter>
     </ClCompile>
     <ClCompile Include="SubTest.cpp">
-      <Filter>Main</Filter>
+      <Filter>Tests</Filter>
     </ClCompile>
     <ClCompile Include="MulTest.cpp">
-      <Filter>Main</Filter>
+      <Filter>Tests</Filter>
+    </ClCompile>
+    <ClCompile Include="Calculator.cpp">
+      <Filter>Calculator</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -33,7 +36,7 @@
       <Filter>StdAfx</Filter>
     </ClInclude>
     <ClInclude Include="Calculator.h">
-      <Filter>Main</Filter>
+      <Filter>Calculator</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
