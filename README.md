@@ -1,4 +1,5 @@
-# KmTest: kernel-mode C++ unit testing framework in BDD-style
+# KmTest
+Kernel-mode C++ unit testing framework in BDD-style
 
 - [Introduction](#introduction)
   - [Features](#features)
