@@ -6,7 +6,7 @@ There is a lack of unit testing frameworks that work in OS kernel. This library 
 - header-only
 - easy to use
 - BDD-style approach for writing unit tests (as well as a traditional one)
-- setup/cleanup code sharing between steps in scenario
+- code sharing between steps in scenario
 
 ## Requirements
 - Windows XP and higher
@@ -30,11 +30,11 @@ Now you can start writing tests.
 *Note: `DriverEntry` is automatically created by the library, so you don't need to write it.*
 ## Writing tests
 You can write tests cases in 2 styles:
-- BDD-style (using given-when-then clauses)
+- BDD-style (using GIVEN-WHEN-THEN clauses)
 - traditional
 
 ### BDD-style test
-BDD-style tests requires more efforts in writing but it is superior in maintaining then traditional tests. The test structure is shown below:
+BDD-style tests requires more efforts in writing but it is superior in maintaining then traditional tests. The basic test structure is shown below (for more advanced usage read about [code sharing](#code-sharing)):
 ```cpp
 SCENARIO("Addition operation")
 {
@@ -58,8 +58,69 @@ Where:
 - `SCENARIO`,`GIVEN`,`WHEN`,`THEN` are used to describe the test
 - `REQUIRE` is used for assertions (can be placed in any block)
 
+#### Code sharing
+
+A great feature of BDD-style tests is that a `SCENARIO` can have several `GIVEN` clauses, a `GIVEN` can have several `WHEN` clauses, a `WHEN` can have several `THEN` clauses. KmTest framework will run all combinations as independed test cases. The sample below will produce 2 test cases (`2+3=5` and `2+0=2`):
+```cpp
+SCENARIO("Addition operation")
+{
+    GIVEN("x = 2")
+    {
+        int x = 2;
+
+        WHEN("y = 3")
+        {
+            int y = 3;
+
+            THEN("the sum will be 5")
+            {
+                REQUIRE(Calculator::add(x, y) == 5);
+            }
+        }
+
+        WHEN("y = 0")
+        {
+            int y = 0;
+
+            THEN("the sum will be 2")
+            {
+                REQUIRE(Calculator::add(x, y) == 2);
+            }
+        }
+    }
+}    
+```
+That's not all. Setup/cleanup code can be shared as well. It is demonstrated by the following example:
+```cpp
+SCENARIO("Addition operation")
+{
+    // <== Here you can write a shared setup code for SCENARIO.
+
+    GIVEN("x = 2")
+    {
+        int x = 2; // <== Here you can write a shared setup code for GIVEN.
+
+        WHEN("y = 3")
+        {
+            int y = 3; // <== Here you can write a shared setup code for WHEN.
+
+            THEN("the sum will be 5")
+            {
+                REQUIRE(Calculator::add(x, y) == 5);
+            }
+
+            // <== Here you can write a shared cleanup code for WHEN.
+        }
+
+        // <== Here you can write a shared cleanup code for GIVEN.
+    }
+
+    // <== Here you can write a shared cleanup code for SCENARIO.
+}
+```
+
 ### Traditional test
-A traditional test has the following structure:
+A traditional test is shown below and is represented by a BDD-style test without GIVEN-WHEN-THEN clauses:
 ```cpp
 // A minimal scenario for those who do not want to write GIVEN-WHEN-THEN clauses.
 SCENARIO("Multiplication operation")
