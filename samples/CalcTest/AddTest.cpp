@@ -12,11 +12,9 @@ SCENARIO("Addition operation")
 
         WHEN("y = 3")
         {
-            // <== Here you can write a shared setup code for WHEN.
+            int y = 3; // <== Here you can write a shared setup code for WHEN.
 
-            int y = 3;
-
-            THEN("the sum will be 5") // Actually you can write several THEN clauses but it has no much sense. So stick to one THEN clause.
+            THEN("the sum will be 5")
             {
                 REQUIRE(Calculator::add(x, y) == 5); // This is a test assertion macro. They can be placed in any clause: SCENARIO, GIVEN, WHEN, THEN.
             }
