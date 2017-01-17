@@ -140,7 +140,7 @@ ASSERTIONS PASSED: 5
 **************************************************
 ```
 # Sample
-There is a [calculator test](samples/CalcTest) sample that demonstrates usage of KTest unit testing framework. To compile it you need Visual Studio 2015 and WDK10.
+There is a [sample](samples) that demonstrates usage of KTest unit testing framework. To compile it you need Visual Studio 2015 and WDK10.
 
 # License
 KTest is licensed under the [MPL version 2.0](http://mozilla.org/MPL/2.0/). You can freely use it in your commercial or opensource software.
