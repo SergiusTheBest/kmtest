@@ -1,5 +1,5 @@
 # KmTest
-Kernel-mode C++ unit testing framework in BDD-style
+Kernel-mode C++ unit testing framework in BDD-style [![Build status](https://ci.appveyor.com/api/projects/status/oh90njhd50dfwco0/branch/master?svg=true)](https://ci.appveyor.com/project/SergiusTheBest/kmtest/branch/master)
 
 - [Introduction](#introduction)
   - [Features](#features)
