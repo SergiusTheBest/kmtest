@@ -27,7 +27,7 @@ There is a lack of unit testing frameworks that work in OS kernel. This library 
 
 ## Requirements
 - Windows XP and higher
-- Visual Studio 2010 and higher (probably older Visual Studio will work too)
+- Visual Studio 2010 and higher
 
 # Usage
 
