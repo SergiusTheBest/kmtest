@@ -1,27 +1,27 @@
 #pragma once
 
-#define KTEST_CAT2(x, y)        x##y
-#define KTEST_CAT(x, y)         KTEST_CAT2(x, y)
+#define KMTEST_CAT2(x, y)        x##y
+#define KMTEST_CAT(x, y)         KMTEST_CAT2(x, y)
 
-#define KTEST_MAKE_ID(prefix)   KTEST_CAT(prefix, __LINE__)
+#define KMTEST_MAKE_ID(prefix)   KMTEST_CAT(prefix, __LINE__)
 
 #define SCENARIO(name) \
-    namespace ktest \
+    namespace kmtest \
     { \
-        static void KTEST_MAKE_ID(testFunc)(Clause curClause, Clause& nextClause, int& assertions, bool nextClauseSet = false); \
-        static void KTEST_MAKE_ID(testFuncStub)(Clause curClause, Clause& nextClause, int& assertions) \
+        static void KMTEST_MAKE_ID(testFunc)(Clause curClause, Clause& nextClause, int& assertions, bool nextClauseSet = false); \
+        static void KMTEST_MAKE_ID(testFuncStub)(Clause curClause, Clause& nextClause, int& assertions) \
         { \
             if (curClause == Clause()) reportScenarioBegin(name); \
-            KTEST_MAKE_ID(testFunc)(curClause, nextClause, assertions); \
+            KMTEST_MAKE_ID(testFunc)(curClause, nextClause, assertions); \
         } \
         namespace \
         { \
-            const TestFunc KTEST_MAKE_ID(testEntry) = KTEST_MAKE_ID(testFuncStub);  \
-            __declspec(dllexport) __declspec(allocate("KTEST$__m")) auto KTEST_MAKE_ID(testEntryPtr) = reinterpret_cast<const TestEntry*>(&KTEST_MAKE_ID(testEntry)); \
+            const TestFunc KMTEST_MAKE_ID(testEntry) = KMTEST_MAKE_ID(testFuncStub);  \
+            __declspec(dllexport) __declspec(allocate("KMTEST$__m")) auto KMTEST_MAKE_ID(testEntryPtr) = reinterpret_cast<const TestEntry*>(&KMTEST_MAKE_ID(testEntry)); \
         } \
     } \
     __pragma(warning(suppress: 4100 /*unreferenced formal parameter*/)) \
-    static void KTEST_MAKE_ID(ktest::testFunc)(Clause curClause, Clause& nextClause, int& assertions, bool nextClauseSet)
+    static void KMTEST_MAKE_ID(kmtest::testFunc)(Clause curClause, Clause& nextClause, int& assertions, bool nextClauseSet)
 
 #define GIVEN(desc) \
     if (curClause.given == 0) curClause.given = __LINE__; \
@@ -45,12 +45,12 @@
         ::RtlAssert(#expression, __FILE__, __LINE__, nullptr); \
     }
 
-#pragma section("KTEST$__a", read)
-#pragma section("KTEST$__m", read)
-#pragma section("KTEST$__z", read)
-#pragma comment(linker, "/merge:KTEST=.rdata")
+#pragma section("KMTEST$__a", read)
+#pragma section("KMTEST$__m", read)
+#pragma section("KMTEST$__z", read)
+#pragma comment(linker, "/merge:KMTEST=.rdata")
 
-namespace ktest
+namespace kmtest
 {
     inline void reportScenarioBegin(const char* scenario)
     {
@@ -128,13 +128,13 @@ namespace ktest
         const TestFunc m_func;
     };
 
-    __declspec(selectany) __declspec(allocate("KTEST$__a")) const TestEntry* testEntryA = nullptr;
-    __declspec(selectany) __declspec(allocate("KTEST$__z")) const TestEntry* testEntryZ = nullptr;
+    __declspec(selectany) __declspec(allocate("KMTEST$__a")) const TestEntry* testEntryA = nullptr;
+    __declspec(selectany) __declspec(allocate("KMTEST$__z")) const TestEntry* testEntryZ = nullptr;
 
     inline void run()
     {
         DbgPrint("**************************************************\n");
-        DbgPrint("* KTEST BEGIN\n");
+        DbgPrint("* KMTEST BEGIN\n");
         DbgPrint("**************************************************\n");
 
         int scenarios = 0;
@@ -152,7 +152,7 @@ namespace ktest
         }
 
         DbgPrint("**************************************************\n");
-        DbgPrint("* KTEST END (scenarios: %d, assertions: %d)\n", scenarios, assertions);
+        DbgPrint("* KMTEST END (scenarios: %d, assertions: %d)\n", scenarios, assertions);
         DbgPrint("**************************************************\n");
     }
 }
@@ -167,7 +167,7 @@ extern "C" DRIVER_INITIALIZE DriverEntry;
 
 extern "C" inline NTSTATUS DriverEntry(_In_ DRIVER_OBJECT* driverObject, _In_ PUNICODE_STRING)
 {
-    ktest::run();
+    kmtest::run();
 
     driverObject->DriverUnload = DriverUnload;
     return STATUS_SUCCESS;

@@ -1,4 +1,4 @@
-# KTest: kernel-mode C++ unit testing framework in BDD-style
+# KmTest: kernel-mode C++ unit testing framework in BDD-style
 # Introduction
 There is a lack of unit testing frameworks that work in OS kernel. This library closes that gap.
 ## Features
@@ -15,14 +15,14 @@ There is a lack of unit testing frameworks that work in OS kernel. This library 
 # Usage
 ## Creating a test project
 Create an empty driver project and do the following:
-- add a path to `ktest/inlcude` into the project include paths
-- add `#include <ktest/ktest.h>` into your new cpp/h files (if you have precompiled headers it is a good place to add this include there)
+- add a path to `kmtest/inlcude` into the project include paths
+- add `#include <kmtest/kmtest.h>` into your new cpp/h files (if you have precompiled headers it is a good place to add this include there)
 
 This is a sample precompiled header:
 ```cpp
 #pragma once
 #include <ntddk.h>
-#include <ktest/ktest.h>
+#include <kmtest/kmtest.h>
 ```
 
 Now you can start writing tests.
@@ -76,16 +76,16 @@ Where:
 
 ## Running tests
 
-Running KTest based tests means starting a driver. It is highly recommended to do this inside a virtual machine. Any assertion failure will trigger a kernel debugger breakpoint or a BSOD if there is no debugger.
+Running KmTest based tests means starting a driver. It is highly recommended to do this inside a virtual machine. Any assertion failure will trigger a kernel debugger breakpoint or a BSOD if there is no debugger.
 
 *Refer to [samples/CalcTest/CalcTest.cmd](samples/CalcTest/CalcTest.cmd) for how to start a driver from the command line.*
 
 ### Test output
-KTest writes messages to the debug output. It can be viewed by WinDbg, DbgView or similar tools. A sample test output is demonstrated below:
+KmTest writes messages to the debug output. It can be viewed by WinDbg, DbgView or similar tools. A sample test output is demonstrated below:
 
 ```
 **************************************************
-* KTEST BEGIN
+* KMTEST BEGIN
 **************************************************
 --------------------------------------------------
 SCENARIO: Addition operation
@@ -136,14 +136,14 @@ GIVEN: x = -3
 ASSERTIONS PASSED: 5
  
 **************************************************
-* KTEST END (scenarios: 3, assertions: 14)
+* KMTEST END (scenarios: 3, assertions: 14)
 **************************************************
 ```
 # Sample
-There is a [sample](samples) that demonstrates usage of KTest unit testing framework. To compile it you need Visual Studio 2015 and WDK10.
+There is a [sample](samples) that demonstrates usage of KmTest unit testing framework. To compile it you need Visual Studio 2015 and WDK10.
 
 # License
-KTest is licensed under the [MPL version 2.0](http://mozilla.org/MPL/2.0/). You can freely use it in your commercial or opensource software.
+KmTest is licensed under the [MPL version 2.0](http://mozilla.org/MPL/2.0/). You can freely use it in your commercial or opensource software.
 
 # Version history
 
