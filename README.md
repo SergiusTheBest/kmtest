@@ -1,4 +1,4 @@
-# KTest: BDD-style C++ unit tests in OS kernel
+# KTest: kernel-mode C++ unit testing framework in BDD-style
 # Introduction
 There is a lack of unit testing frameworks that work in OS kernel. This library closes that gap.
 ## Features
