@@ -53,7 +53,7 @@ You can write tests cases in 2 styles:
 - traditional
 
 ### BDD-style test
-BDD-style tests requires more efforts in writing but it is superior in maintaining then traditional tests. The basic test structure is shown below (for more advanced usage read about [code sharing](#code-sharing)):
+BDD-style tests requires more efforts in writing but they are superior in maintaining than traditional tests. The basic test structure is shown below (for more advanced usage read about [code sharing](#code-sharing)):
 ```cpp
 SCENARIO("Addition operation")
 {
