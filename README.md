@@ -9,8 +9,8 @@ There is a lack of unit testing frameworks that work in OS kernel. This library 
 - setup/cleanup code sharing between steps in scenario
 
 ## Requirements
-- Windows Vista and higher
-- Visual Studio 2010 and higher
+- Windows XP and higher
+- Visual Studio 2010 and higher (probably older Visual Studio will work too)
 
 # Usage
 ## Creating a test project
