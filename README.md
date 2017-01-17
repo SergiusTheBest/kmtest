@@ -1,6 +1,22 @@
 # KmTest: kernel-mode C++ unit testing framework in BDD-style
+
+- [Introduction](#introduction)
+  - [Features](#features)
+  - [Requirements](#requirements)
+- [Usage](#usage)
+  - [Creating a test project](#creating-a-test-project)
+  - [Writing tests](#writing-tests)
+    - [BDD-style test](#bdd-style-test)
+    - [Traditional test](#traditional-test)
+  - [Running tests](#running-tests)
+    - [Test output](#test-output)
+- [Samples](#samples)
+- [License](#license)
+- [Version history](#version-history)
+
 # Introduction
 There is a lack of unit testing frameworks that work in OS kernel. This library closes that gap.
+
 ## Features
 - designed for testing kernel-mode code
 - header-only
@@ -13,6 +29,7 @@ There is a lack of unit testing frameworks that work in OS kernel. This library 
 - Visual Studio 2010 and higher (probably older Visual Studio will work too)
 
 # Usage
+
 ## Creating a test project
 Create an empty driver project and do the following:
 - add a path to `kmtest/inlcude` into the project include paths
@@ -28,6 +45,7 @@ This is a sample precompiled header:
 Now you can start writing tests.
 
 *Note: `DriverEntry` is automatically created by the library, so you don't need to write it.*
+
 ## Writing tests
 You can write tests cases in 2 styles:
 - BDD-style (using GIVEN-WHEN-THEN clauses)
@@ -59,7 +77,6 @@ Where:
 - `REQUIRE` is used for assertions (can be placed in any block)
 
 #### Code sharing
-
 A great feature of BDD-style tests is that a `SCENARIO` can have several `GIVEN` clauses, a `GIVEN` can have several `WHEN` clauses, a `WHEN` can have several `THEN` clauses. KmTest framework will run all combinations as independed test cases. The sample below will produce 2 test cases (`2+3=5` and `2+0=2`):
 ```cpp
 SCENARIO("Addition operation")
@@ -136,7 +153,6 @@ Where:
 - `REQUIRE` is used for assertions
 
 ## Running tests
-
 Running KmTest based tests means starting a driver. It is highly recommended to do this inside a virtual machine. Any assertion failure will trigger a kernel debugger breakpoint or a BSOD if there is no debugger.
 
 *Refer to [samples/CalcTest/CalcTest.cmd](samples/CalcTest/CalcTest.cmd) for how to start a driver from the command line.*
@@ -200,8 +216,9 @@ ASSERTIONS PASSED: 5
 * KMTEST END (scenarios: 3, assertions: 14)
 **************************************************
 ```
-# Sample
-There is a [sample](samples) that demonstrates usage of KmTest unit testing framework. To compile it you need Visual Studio 2015 and WDK10.
+
+# Samples
+There is a [samples](samples) folder that demonstrates usage of KmTest unit testing framework. To compile it you need Visual Studio 2015 and WDK10.
 
 # License
 KmTest is licensed under the [MPL version 2.0](http://mozilla.org/MPL/2.0/). You can freely use it in your commercial or opensource software.
