@@ -13,6 +13,7 @@ Kernel-mode C++ unit testing framework in BDD-style [![Build status](https://ci.
     - [Test output](#test-output)
 - [Samples](#samples)
 - [License](#license)
+- [Acknowledgment](#acknowledgment)
 - [Version history](#version-history)
 
 # Introduction
@@ -223,6 +224,9 @@ There is a [samples](samples) folder that demonstrates usage of KmTest unit test
 
 # License
 KmTest is licensed under the [MPL version 2.0](http://mozilla.org/MPL/2.0/). You can freely use it in your commercial or opensource software.
+
+# Acknowledgment
+Thanks to Phil Nash and his [Catch C++ test framework](https://github.com/philsquared/Catch) for BDD-style inspiration.
 
 # Version history
 
