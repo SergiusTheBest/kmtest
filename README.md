@@ -230,5 +230,5 @@ Thanks to Phil Nash and his [Catch C++ test framework](https://github.com/philsq
 
 # Version history
 
-## Version 0.6.0 (16 Jan 2017)
+## Version 0.6.0 (18 Jan 2017)
 - Initial public release
