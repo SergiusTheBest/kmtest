@@ -17,7 +17,7 @@ Kernel-mode C++ unit testing framework in BDD-style [![Build status](https://ci.
 - [Version history](#version-history)
 
 # Introduction
-There is a lack of unit testing frameworks that work in OS kernel. This library closes that gap.
+There is a lack of unit testing frameworks that work in OS kernel. This library closes that gap and is targeted for windows driver developers.
 
 ## Features
 - designed for testing kernel-mode code
