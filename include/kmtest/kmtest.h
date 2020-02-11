@@ -5,14 +5,22 @@
 
 #define KMTEST_MAKE_ID(prefix)   KMTEST_CAT(prefix, __LINE__)
 
+#ifdef _KERNEL_MODE
+    #define KMTEST_PRINT DbgPrint
+    #define KMTEST_ASSERT ::RtlAssert
+#else
+    #define KMTEST_PRINT printf
+    #define KMTEST_ASSERT
+#endif
+
 #define SCENARIO(name) \
     namespace kmtest \
     { \
-        static void KMTEST_MAKE_ID(testFunc)(Clause curClause, Clause& nextClause, int& assertions, bool nextClauseSet = false); \
-        static void KMTEST_MAKE_ID(testFuncStub)(Clause curClause, Clause& nextClause, int& assertions) \
+        static void KMTEST_MAKE_ID(testFunc)(Clause curClause, Clause& nextClause, int& assertions, int& failures, bool nextClauseSet = false); \
+        static void KMTEST_MAKE_ID(testFuncStub)(Clause curClause, Clause& nextClause, int& assertions, int& failures) \
         { \
             if (curClause == Clause()) reportScenarioBegin(name); \
-            KMTEST_MAKE_ID(testFunc)(curClause, nextClause, assertions); \
+            KMTEST_MAKE_ID(testFunc)(curClause, nextClause, assertions, failures); \
         } \
         namespace \
         { \
@@ -21,7 +29,7 @@
         } \
     } \
     __pragma(warning(suppress: 4100 /*unreferenced formal parameter*/)) \
-    static void KMTEST_MAKE_ID(kmtest::testFunc)(Clause curClause, Clause& nextClause, int& assertions, bool nextClauseSet)
+    static void KMTEST_MAKE_ID(kmtest::testFunc)(Clause curClause, Clause& nextClause, int& assertions, int& failures, bool nextClauseSet)
 
 #define GIVEN(desc) \
     if (curClause.given == 0) curClause.given = __LINE__; \
@@ -42,7 +50,8 @@
     ++assertions; \
     if (!(expression)) \
     { \
-        ::RtlAssert(#expression, __FILE__, __LINE__, nullptr); \
+        KMTEST_ASSERT(#expression, __FILE__, __LINE__, nullptr); \
+        ++failures; \
     }
 
 #pragma section("KMTEST$__a", read)
@@ -54,31 +63,32 @@ namespace kmtest
 {
     inline void reportScenarioBegin(const char* scenario)
     {
-        DbgPrint("--------------------------------------------------\n");
-        DbgPrint("SCENARIO: %s\n", scenario);
-        DbgPrint("--------------------------------------------------\n");
+        KMTEST_PRINT("--------------------------------------------------\n");
+        KMTEST_PRINT("SCENARIO: %s\n", scenario);
+        KMTEST_PRINT("--------------------------------------------------\n");
     }
 
-    inline void reportScenarioEnd(int assertions)
+    inline void reportScenarioEnd(int assertions, int failures)
     {
-        DbgPrint("\nASSERTIONS PASSED: %d\n\n", assertions);
+        KMTEST_PRINT("\nASSERTIONS PASSED: %d\n", assertions - failures);
+        KMTEST_PRINT("ASSERTIONS FAILED: %d\n\n", failures);
     }
 
     inline bool reportGiven(const char* given)
     {
-        DbgPrint("GIVEN: %s\n", given);
+        KMTEST_PRINT("GIVEN: %s\n", given);
         return true;
     }
 
     inline bool reportWhen(const char* when)
     {
-        DbgPrint("  WHEN: %s\n", when);
+        KMTEST_PRINT("  WHEN: %s\n", when);
         return true;
     }
 
     inline bool reportThen(const char* then)
     {
-        DbgPrint("    THEN: %s\n", then);
+        KMTEST_PRINT("    THEN: %s\n", then);
         return true;
     }
 
@@ -94,20 +104,21 @@ namespace kmtest
         }
     };
 
-    typedef void(*TestFunc)(Clause curClause, Clause& nextClause, int& assertions);
+    typedef void(*TestFunc)(Clause curClause, Clause& nextClause, int& assertions, int& failures);
 
     class TestEntry
     {
     public:
-        void run(int& assertions) const
+        void run(int& assertions, int& failures) const
         {
             Clause curClause = {};
             Clause nextClause = {};
             int localAssertions = 0;
+            int localFailures = 0;
 
             for (;;)
             {
-                m_func(curClause, nextClause, localAssertions);
+                m_func(curClause, nextClause, localAssertions, localFailures);
 
                 if (nextClause == curClause)
                 {
@@ -117,8 +128,9 @@ namespace kmtest
                 curClause = nextClause;
             }
 
-            reportScenarioEnd(localAssertions);
+            reportScenarioEnd(localAssertions, localFailures);
             assertions += localAssertions;
+            failures += localFailures;
         }
 
     private:
@@ -131,14 +143,15 @@ namespace kmtest
     __declspec(selectany) __declspec(allocate("KMTEST$__a")) const TestEntry* testEntryA = nullptr;
     __declspec(selectany) __declspec(allocate("KMTEST$__z")) const TestEntry* testEntryZ = nullptr;
 
-    inline void run()
+    inline int run()
     {
-        DbgPrint("**************************************************\n");
-        DbgPrint("* KMTEST BEGIN\n");
-        DbgPrint("**************************************************\n");
+        KMTEST_PRINT("*******************************************************\n");
+        KMTEST_PRINT("* KMTEST BEGIN\n");
+        KMTEST_PRINT("*******************************************************\n");
 
         int scenarios = 0;
         int assertions = 0;
+        int failures = 0;
 
         for (const TestEntry** testEntry = &testEntryA; testEntry < &testEntryZ; ++testEntry)
         {
@@ -147,16 +160,19 @@ namespace kmtest
                 continue;
             }
 
-            (*testEntry)->run(assertions);
+            (*testEntry)->run(assertions, failures);
             ++scenarios;
         }
 
-        DbgPrint("**************************************************\n");
-        DbgPrint("* KMTEST END (scenarios: %d, assertions: %d)\n", scenarios, assertions);
-        DbgPrint("**************************************************\n");
+        KMTEST_PRINT("*******************************************************\n");
+        KMTEST_PRINT("* KMTEST END (scenarios: %d, assertions: %d, failures: %d)\n", scenarios, assertions, failures);
+        KMTEST_PRINT("*******************************************************\n");
+
+        return failures;
     }
 }
 
+#ifdef _KERNEL_MODE
 DRIVER_UNLOAD DriverUnload;
 
 inline void DriverUnload(_In_ DRIVER_OBJECT*)
@@ -172,3 +188,9 @@ extern "C" inline NTSTATUS DriverEntry(_In_ DRIVER_OBJECT* driverObject, _In_ PU
     driverObject->DriverUnload = DriverUnload;
     return STATUS_SUCCESS;
 }
+#else
+int main()
+{
+    return kmtest::run();
+}
+#endif
