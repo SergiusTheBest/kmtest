@@ -5,6 +5,12 @@
 
 #define KMTEST_MAKE_ID(prefix)   KMTEST_CAT(prefix, __LINE__)
 
+#ifdef _KERNEL_MODE
+    #define KMTEST_PRINT DbgPrint
+#else
+    #define KMTEST_PRINT printf
+#endif
+
 #define SCENARIO(name) \
     namespace kmtest \
     { \
@@ -54,31 +60,31 @@ namespace kmtest
 {
     inline void reportScenarioBegin(const char* scenario)
     {
-        DbgPrint("--------------------------------------------------\n");
-        DbgPrint("SCENARIO: %s\n", scenario);
-        DbgPrint("--------------------------------------------------\n");
+        KMTEST_PRINT("--------------------------------------------------\n");
+        KMTEST_PRINT("SCENARIO: %s\n", scenario);
+        KMTEST_PRINT("--------------------------------------------------\n");
     }
 
     inline void reportScenarioEnd(int assertions)
     {
-        DbgPrint("\nASSERTIONS PASSED: %d\n\n", assertions);
+        KMTEST_PRINT("\nASSERTIONS PASSED: %d\n\n", assertions);
     }
 
     inline bool reportGiven(const char* given)
     {
-        DbgPrint("GIVEN: %s\n", given);
+        KMTEST_PRINT("GIVEN: %s\n", given);
         return true;
     }
 
     inline bool reportWhen(const char* when)
     {
-        DbgPrint("  WHEN: %s\n", when);
+        KMTEST_PRINT("  WHEN: %s\n", when);
         return true;
     }
 
     inline bool reportThen(const char* then)
     {
-        DbgPrint("    THEN: %s\n", then);
+        KMTEST_PRINT("    THEN: %s\n", then);
         return true;
     }
 
@@ -133,9 +139,9 @@ namespace kmtest
 
     inline void run()
     {
-        DbgPrint("**************************************************\n");
-        DbgPrint("* KMTEST BEGIN\n");
-        DbgPrint("**************************************************\n");
+        KMTEST_PRINT("**************************************************\n");
+        KMTEST_PRINT("* KMTEST BEGIN\n");
+        KMTEST_PRINT("**************************************************\n");
 
         int scenarios = 0;
         int assertions = 0;
@@ -151,12 +157,13 @@ namespace kmtest
             ++scenarios;
         }
 
-        DbgPrint("**************************************************\n");
-        DbgPrint("* KMTEST END (scenarios: %d, assertions: %d)\n", scenarios, assertions);
-        DbgPrint("**************************************************\n");
+        KMTEST_PRINT("**************************************************\n");
+        KMTEST_PRINT("* KMTEST END (scenarios: %d, assertions: %d)\n", scenarios, assertions);
+        KMTEST_PRINT("**************************************************\n");
     }
 }
 
+#ifdef _KERNEL_MODE
 DRIVER_UNLOAD DriverUnload;
 
 inline void DriverUnload(_In_ DRIVER_OBJECT*)
@@ -172,3 +179,10 @@ extern "C" inline NTSTATUS DriverEntry(_In_ DRIVER_OBJECT* driverObject, _In_ PU
     driverObject->DriverUnload = DriverUnload;
     return STATUS_SUCCESS;
 }
+#else
+int main()
+{
+    kmtest::run();
+    return 0;
+}
+#endif
