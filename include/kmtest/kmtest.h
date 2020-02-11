@@ -165,7 +165,7 @@ namespace kmtest
         }
 
         KMTEST_PRINT("*******************************************************\n");
-        KMTEST_PRINT("* KMTEST END (scenarios: %d, assertions: %d, failures %d)\n", scenarios, assertions, failures);
+        KMTEST_PRINT("* KMTEST END (scenarios: %d, assertions: %d, failures: %d)\n", scenarios, assertions, failures);
         KMTEST_PRINT("*******************************************************\n");
 
         return failures;
