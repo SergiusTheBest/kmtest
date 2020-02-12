@@ -63,15 +63,21 @@ namespace kmtest
 {
     inline void reportScenarioBegin(const char* scenario)
     {
-        KMTEST_PRINT("--------------------------------------------------\n");
+        KMTEST_PRINT("-------------------------------------------------------\n");
         KMTEST_PRINT("SCENARIO: %s\n", scenario);
-        KMTEST_PRINT("--------------------------------------------------\n");
+        KMTEST_PRINT("-------------------------------------------------------\n");
     }
 
     inline void reportScenarioEnd(int assertions, int failures)
     {
-        KMTEST_PRINT("\nASSERTIONS PASSED: %d\n", assertions - failures);
-        KMTEST_PRINT("ASSERTIONS FAILED: %d\n\n", failures);
+        if (!failures)
+        {
+            KMTEST_PRINT("\nPASSED (assertions: %d)\n\n", assertions);
+        }
+        else
+        {
+            KMTEST_PRINT("\nFAILED (assertions: %d, failures: %d)\n\n", assertions, failures);
+        }
     }
 
     inline bool reportGiven(const char* given)
@@ -94,9 +100,9 @@ namespace kmtest
 
     struct Clause
     {
-        int given;
-        int when;
-        int then;
+        int given = 0;
+        int when = 0;
+        int then = 0;
 
         bool operator==(const Clause& other) const
         {
@@ -165,7 +171,14 @@ namespace kmtest
         }
 
         KMTEST_PRINT("*******************************************************\n");
-        KMTEST_PRINT("* KMTEST END (scenarios: %d, assertions: %d, failures: %d)\n", scenarios, assertions, failures);
+        if (!failures)
+        {
+            KMTEST_PRINT("* KMTEST PASSED (scenarios: %d, assertions: %d)\n", scenarios, assertions);
+        }
+        else
+        {
+            KMTEST_PRINT("* KMTEST FAILED (scenarios: %d, assertions: %d, failures: %d)\n", scenarios, assertions, failures);
+        }
         KMTEST_PRINT("*******************************************************\n");
 
         return failures;
