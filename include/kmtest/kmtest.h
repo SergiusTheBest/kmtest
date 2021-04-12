@@ -59,12 +59,6 @@
 #pragma section("KMTEST$__z", read)
 #pragma comment(linker, "/merge:KMTEST=.rdata")
 
-namespace
-{
-    DRIVER_OBJECT* s_driverObject = nullptr;
-    UNICODE_STRING s_registryPath = {};
-}
-
 namespace kmtest
 {
     inline void reportScenarioBegin(const char* scenario)
@@ -190,15 +184,8 @@ namespace kmtest
         return failures;
     }
 
-    DRIVER_OBJECT* GetDriverObject()
-    {
-        return s_driverObject;
-    }
-
-    PUNICODE_STRING GetRegistryPath()
-    {
-        return &s_registryPath;
-    }
+    __declspec(selectany) DRIVER_OBJECT* g_driverObject = nullptr;
+    __declspec(selectany) UNICODE_STRING g_registryPath = {};
 }
 
 #ifdef _KERNEL_MODE
@@ -212,8 +199,8 @@ extern "C" DRIVER_INITIALIZE DriverEntry;
 
 extern "C" inline NTSTATUS DriverEntry(_In_ DRIVER_OBJECT* driverObject, _In_ PUNICODE_STRING registryPath)
 {
-    s_driverObject = driverObject;
-    s_registryPath = *registryPath;
+    kmtest::g_driverObject = driverObject;
+    kmtest::g_registryPath = *registryPath;
 
     kmtest::run();
 
