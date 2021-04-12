@@ -183,6 +183,9 @@ namespace kmtest
 
         return failures;
     }
+
+    __declspec(selectany) DRIVER_OBJECT* g_driverObject = nullptr;
+    __declspec(selectany) UNICODE_STRING g_registryPath = {};
 }
 
 #ifdef _KERNEL_MODE
@@ -194,8 +197,11 @@ inline void DriverUnload(_In_ DRIVER_OBJECT*)
 
 extern "C" DRIVER_INITIALIZE DriverEntry;
 
-extern "C" inline NTSTATUS DriverEntry(_In_ DRIVER_OBJECT* driverObject, _In_ PUNICODE_STRING)
+extern "C" inline NTSTATUS DriverEntry(_In_ DRIVER_OBJECT* driverObject, _In_ PUNICODE_STRING registryPath)
 {
+    kmtest::g_driverObject = driverObject;
+    kmtest::g_registryPath = *registryPath;
+
     kmtest::run();
 
     driverObject->DriverUnload = DriverUnload;
