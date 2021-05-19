@@ -54,6 +54,12 @@
         ++failures; \
     }
 
+#define REQUIRE_NT_SUCCESS(expression) \
+    REQUIRE(NT_SUCCESS(expression))
+
+#define REQUIRE_NT_FAILURE(expression) \
+    REQUIRE(!NT_SUCCESS(expression))
+
 #pragma section("KMTEST$__a", read)
 #pragma section("KMTEST$__m", read)
 #pragma section("KMTEST$__z", read)
