@@ -243,5 +243,11 @@ Thanks to Phil Nash and his [Catch C++ test framework](https://github.com/philsq
 
 # Version history
 
+## Version 0.9.1 (26 May 2022)
+- New: Add ability to run in user space #2
+- New: Save `DriverEntry` arguments #4
+- New: Add macro REQUIRE_SUCCESS and REQUIRE_FAILURE #5
+- Fix: Cannot convert `const char []` to `PVOID` #6
+
 ## Version 0.9.0 (18 Jan 2017)
 - Initial public release
