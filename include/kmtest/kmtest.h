@@ -50,7 +50,7 @@
     ++assertions; \
     if (!(expression)) \
     { \
-        KMTEST_ASSERT(#expression, __FILE__, __LINE__, nullptr); \
+        KMTEST_ASSERT(const_cast<char*>(#expression), const_cast<char*>(__FILE__), __LINE__, nullptr); \
         ++failures; \
     }
 
