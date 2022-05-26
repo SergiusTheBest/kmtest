@@ -6,9 +6,11 @@ Kernel-mode C++ unit testing framework in BDD-style [![Build status](https://ci.
   - [Requirements](#requirements)
 - [Usage](#usage)
   - [Creating a test project](#creating-a-test-project)
+  - [Main function](#main-function)
   - [Writing tests](#writing-tests)
     - [BDD-style test](#bdd-style-test)
     - [Traditional test](#traditional-test)
+    - [Require clauses](#require-clauses)
   - [Running tests](#running-tests)
     - [Test output](#test-output)
 - [Samples](#samples)
@@ -17,10 +19,11 @@ Kernel-mode C++ unit testing framework in BDD-style [![Build status](https://ci.
 - [Version history](#version-history)
 
 # Introduction
-There is a lack of unit testing frameworks that work in OS kernel. This library closes that gap and is targeted for windows driver developers.
+There is a lack of unit testing frameworks that work in OS kernel. This library closes that gap and is targeted for Windows driver developers.
 
 ## Features
 - designed for testing kernel-mode code
+- can run in user mode (for testing mode-independent code)
 - header-only
 - easy to use
 - BDD-style approach for writing unit tests (as well as a traditional one)
@@ -44,9 +47,11 @@ This is a sample precompiled header:
 #include <kmtest/kmtest.h>
 ```
 
-Now you can start writing tests.
+## Main function
+`DriverEntry` or `main` is automatically created by the library, so you don't need to write it. 
 
-*Note: `DriverEntry` is automatically created by the library, so you don't need to write it.*
+A driver object and a registry path can be accessed via `kmtest::g_driverObject` and `kmtest::g_registryPath`.
+
 
 ## Writing tests
 You can write tests cases in 2 styles:
@@ -153,6 +158,14 @@ SCENARIO("Multiplication operation")
 Where:
 - `SCENARIO` is used to describe the test
 - `REQUIRE` is used for assertions
+
+### Require clauses
+Requires clauses are used for assertions. There are several of them:
+|Clause|Expression return type|Expression expected value|
+|--|--|--|
+|REQUIRE(expression)|bool|true|
+|REQUIRE_NT_SUCCESS(expression)|NTSTATUS|NT_SUCCESS(status)|
+|REQUIRE_NT_FAILURE(expression)|NTSTATUS|!NT_SUCCESS(status)|
 
 ## Running tests
 Running KmTest based tests means starting a driver. It is highly recommended to do this inside a virtual machine. Any assertion failure will trigger a kernel debugger breakpoint or a BSOD if there is no debugger.
