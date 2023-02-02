@@ -1,8 +1,11 @@
-image: Visual Studio 2019
+image:
+  - Visual Studio 2019
+  - Visual Studio 2017
+  - Visual Studio 2015
 
 configuration:
-- Debug
-- Release
+  - Debug
+  - Release
 
 platform:
   - x86
@@ -10,8 +13,16 @@ platform:
 
 matrix:
   fast_finish: true
-  
+
 shallow_clone: true
+
+skip_commits:
+  files:
+    - .github/
+    - .editorconfig
+    - .gitignore
+    - LICENSE
+    - README.md
 
 build:
   project: samples\Samples.sln
