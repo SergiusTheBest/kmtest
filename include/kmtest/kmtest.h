@@ -54,6 +54,7 @@
 
 #define REQUIRE(expression) \
     ++assertions; \
+    __pragma(warning(suppress: 4127 /*conditional expression is constant*/)) \
     if (!(expression)) \
     { \
         KMTEST_ASSERT(const_cast<char*>(#expression), const_cast<char*>(__FILE__), __LINE__, nullptr); \
