@@ -1,9 +1,7 @@
 #pragma once
 
-#define KMTEST_CAT2(x, y)        x##y
-#define KMTEST_CAT(x, y)         KMTEST_CAT2(x, y)
-
-#define KMTEST_MAKE_ID(prefix)   KMTEST_CAT(prefix, __LINE__)
+#define KMTEST_IMPL_CAT(x, y)   x##y
+#define KMTEST_CAT(x, y)        KMTEST_IMPL_CAT(x, y)
 
 #ifdef _KERNEL_MODE
     #define KMTEST_PRINT DbgPrint
@@ -13,38 +11,46 @@
     #define KMTEST_ASSERT
 #endif
 
-#define SCENARIO(name) \
+#define SCENARIO(name) KMTEST_IMPL_SCENARIO(name, __COUNTER__)
+
+#define KMTEST_IMPL_SCENARIO(name, counter) \
     namespace kmtest \
     { \
-        static void KMTEST_MAKE_ID(testFunc)(Clause curClause, Clause& nextClause, int& assertions, int& failures, bool nextClauseSet = false); \
-        static void KMTEST_MAKE_ID(testFuncStub)(Clause curClause, Clause& nextClause, int& assertions, int& failures) \
+        static void KMTEST_CAT(testFunc, counter)(Clause curClause, Clause& nextClause, int& assertions, int& failures, bool nextClauseSet = false); \
+        static void KMTEST_CAT(testFuncStub, counter)(Clause curClause, Clause& nextClause, int& assertions, int& failures) \
         { \
             if (curClause == Clause()) reportScenarioBegin(name); \
-            KMTEST_MAKE_ID(testFunc)(curClause, nextClause, assertions, failures); \
+            KMTEST_CAT(testFunc, counter)(curClause, nextClause, assertions, failures); \
         } \
         namespace \
         { \
-            const TestFunc KMTEST_MAKE_ID(testEntry) = KMTEST_MAKE_ID(testFuncStub);  \
-            __declspec(dllexport) __declspec(allocate("KMTEST$__m")) auto KMTEST_MAKE_ID(testEntryPtr) = reinterpret_cast<const TestEntry*>(&KMTEST_MAKE_ID(testEntry)); \
+            const TestFunc KMTEST_CAT(testEntry, counter) = KMTEST_CAT(testFuncStub, counter);  \
+            __declspec(dllexport) __declspec(allocate("KMTEST$__m")) auto KMTEST_CAT(testEntryPtr, counter) = reinterpret_cast<const TestEntry*>(&KMTEST_CAT(testEntry, counter)); \
         } \
     } \
     __pragma(warning(suppress: 4100 /*unreferenced formal parameter*/)) \
-    static void KMTEST_MAKE_ID(kmtest::testFunc)(Clause curClause, Clause& nextClause, int& assertions, int& failures, bool nextClauseSet)
+    static void KMTEST_CAT(kmtest::testFunc, counter)(Clause curClause, Clause& nextClause, int& assertions, int& failures, bool nextClauseSet)
 
-#define GIVEN(desc) \
-    if (curClause.given == 0) curClause.given = __LINE__; \
-    if (curClause.given < __LINE__ && !nextClauseSet) { nextClause.given = __LINE__; nextClause.when = nextClause.then = 0; nextClauseSet = true; } \
-    else if (__LINE__ == curClause.given && reportGiven(desc))
+#define GIVEN(desc) KMTEST_IMPL_GIVEN(desc, __COUNTER__)
 
-#define WHEN(desc) \
-    if (curClause.when == 0) curClause.when = __LINE__; \
-    if (curClause.when < __LINE__ && !nextClauseSet) { nextClause.when = __LINE__; nextClause.then = 0; nextClauseSet = true; } \
-    else if (__LINE__ == curClause.when && reportWhen(desc))
+#define KMTEST_IMPL_GIVEN(desc, counter) \
+    if (curClause.given == 0) curClause.given = counter; \
+    if (curClause.given < counter && !nextClauseSet) { nextClause.given = counter; nextClause.when = nextClause.then = 0; nextClauseSet = true; } \
+    else if (counter == curClause.given && reportGiven(desc))
 
-#define THEN(desc) \
-    if (curClause.then == 0) curClause.then = __LINE__; \
-    if (curClause.then < __LINE__ && !nextClauseSet) { nextClause.then = __LINE__; nextClauseSet = true; } \
-    else if (__LINE__ == curClause.then && reportThen(desc))
+#define WHEN(desc) KMTEST_IMPL_WHEN(desc, __COUNTER__)
+
+#define KMTEST_IMPL_WHEN(desc, counter) \
+    if (curClause.when == 0) curClause.when = counter; \
+    if (curClause.when < counter && !nextClauseSet) { nextClause.when = counter; nextClause.then = 0; nextClauseSet = true; } \
+    else if (counter == curClause.when && reportWhen(desc))
+
+#define THEN(desc) KMTEST_IMPL_THEN(desc, __COUNTER__)
+
+#define KMTEST_IMPL_THEN(desc, counter) \
+    if (curClause.then == 0) curClause.then = counter; \
+    if (curClause.then < counter && !nextClauseSet) { nextClause.then = counter; nextClauseSet = true; } \
+    else if (counter == curClause.then && reportThen(desc))
 
 #define REQUIRE(expression) \
     ++assertions; \
