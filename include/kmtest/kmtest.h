@@ -195,20 +195,21 @@ namespace kmtest
 
         return failures;
     }
+}
 
+#ifdef _KERNEL_MODE
+namespace kmtest
+{
     __declspec(selectany) DRIVER_OBJECT* g_driverObject = nullptr;
     __declspec(selectany) UNICODE_STRING g_registryPath = {};
 }
 
-#ifdef _KERNEL_MODE
 DRIVER_UNLOAD DriverUnload;
-
 inline void DriverUnload(_In_ DRIVER_OBJECT*)
 {
 }
 
 extern "C" DRIVER_INITIALIZE DriverEntry;
-
 extern "C" inline NTSTATUS DriverEntry(_In_ DRIVER_OBJECT* driverObject, _In_ PUNICODE_STRING registryPath)
 {
     kmtest::g_driverObject = driverObject;
