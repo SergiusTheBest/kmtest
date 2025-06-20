@@ -216,6 +216,10 @@ extern "C" inline NTSTATUS DriverEntry(_In_ DRIVER_OBJECT* driverObject, _In_ PU
     kmtest::g_driverObject = driverObject;
     kmtest::g_registryPath = *registryPath;
 
+#ifdef KMTEST_PRE_RUN_ROUTINE
+    KMTEST_PRE_RUN_ROUTINE();
+#endif
+
     kmtest::run();
 
     driverObject->DriverUnload = DriverUnload;
