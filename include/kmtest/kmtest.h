@@ -168,6 +168,10 @@ namespace kmtest
         KMTEST_PRINT("* KMTEST BEGIN\n");
         KMTEST_PRINT("*******************************************************\n");
 
+        #ifdef KMTEST_PRE_RUN_ROUTINE
+            KMTEST_PRE_RUN_ROUTINE();
+        #endif
+
         int scenarios = 0;
         int assertions = 0;
         int failures = 0;
@@ -182,6 +186,10 @@ namespace kmtest
             (*testEntry)->run(assertions, failures);
             ++scenarios;
         }
+
+        #ifdef KMTEST_POST_RUN_ROUTINE
+            KMTEST_POST_RUN_ROUTINE();
+        #endif
 
         KMTEST_PRINT("*******************************************************\n");
         if (!failures)
