@@ -232,6 +232,43 @@ ASSERTIONS PASSED: 5
 **************************************************
 ```
 
+### Global Preparation and Cleanup Routines
+
+KMTEST_PRE_RUN_ROUTINE
+KMTEST_POST_RUN_ROUTINE
+
+#### Global Preparation with `KMTEST_PRE_RUN_ROUTINE`
+
+If you need to perform some global preparation before any test runs (for example, initializing shared resources or setting up an environment), you can define a function named `KMTEST_PRE_RUN_ROUTINE` with no parameters. This function will be called once before all tests are executed. Use this for setup tasks that should only happen once per test session.
+
+**Example:**
+```cpp
+void KMTEST_PRE_RUN_ROUTINE()
+{
+    // Initialization code here
+    InitializeMyDriverEnvironment();
+}
+```
+- The function must have no parameters.
+- This routine runs once before all test cases.
+- Use it for setup steps that are expensive or should only happen once per test session.
+
+#### Global Cleanup with `KMTEST_POST_RUN_ROUTINE`
+
+If you need to perform cleanup after all tests have been executed (for example, releasing shared resources or environment teardown), you can define a function named `KMTEST_POST_RUN_ROUTINE` with no parameters. This function will be called once after all tests have finished running. Use this for cleanup tasks that should only happen once per test session.
+
+**Example:**
+```cpp
+void KMTEST_POST_RUN_ROUTINE()
+{
+    // Cleanup code here
+    ReleaseMyDriverEnvironment();
+}
+```
+- The function must have no parameters.
+- This routine runs once after all test cases.
+- Use it for teardown steps that are expensive or should only happen once per test session.
+
 # Samples
 There is a [samples](samples) folder that demonstrates usage of KmTest unit testing framework. To compile it you need Visual Studio 2015 and WDK10.
 
