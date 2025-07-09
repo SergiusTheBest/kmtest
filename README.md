@@ -243,11 +243,13 @@ If you need to perform some global preparation before any test runs (for example
 
 **Example:**
 ```cpp
-void KMTEST_PRE_RUN_ROUTINE()
+#define KMTEST_PRE_RUN_ROUTINE() InitializeMyDriverEnvironment()
+
+void InitializeMyDriverEnvironment()
 {
     // Initialization code here
-    InitializeMyDriverEnvironment();
 }
+
 ```
 - The function must have no parameters.
 - This routine runs once before all test cases.
@@ -259,10 +261,11 @@ If you need to perform cleanup after all tests have been executed (for example, 
 
 **Example:**
 ```cpp
-void KMTEST_POST_RUN_ROUTINE()
+#define KMTEST_POST_RUN_ROUTINE() ReleaseMyDriverEnvironment()
+
+void ReleaseMyDriverEnvironment()
 {
     // Cleanup code here
-    ReleaseMyDriverEnvironment();
 }
 ```
 - The function must have no parameters.
