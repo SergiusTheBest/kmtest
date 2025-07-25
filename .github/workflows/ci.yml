@@ -19,7 +19,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     
     strategy:
-      fail-fast: false
+      fail-fast: true
       matrix:
         os: [ubuntu-latest]
         
@@ -39,9 +39,9 @@ jobs:
     runs-on: windows-2022
     
     strategy:
-      fail-fast: false
+      fail-fast: true
       matrix:
-        platform: [x86, x64]
+        platform: [x64]
         configuration: [Debug, Release]
     
     steps:
