@@ -4,13 +4,16 @@ on:
   push:
     branches: [ master, main ]
     paths-ignore:
-      - 'README.md'
+      - .editorconfig
+      - .gitignore
       - '*.md'
   pull_request:
     branches: [ master, main ]
     paths-ignore:
-      - 'README.md'
+      - .editorconfig
+      - .gitignore
       - '*.md'
+  workflow_dispatch:
 
 jobs:
   # Header-only validation across platforms
@@ -54,7 +57,5 @@ jobs:
     - name: Build samples
       shell: powershell
       run: |
-        Write-Output "Building: Configuration=${{ matrix.configuration }}, Platform=${{ matrix.platform }}"
-        
         # Build the solution (may fail for now, but we'll fix it later)
         msbuild samples\Samples.sln /p:Configuration=${{ matrix.configuration }} /p:Platform=${{ matrix.platform }} /m
