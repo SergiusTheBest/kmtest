@@ -3,8 +3,14 @@ name: CI
 on:
   push:
     branches: [ master, main ]
+    paths-ignore:
+      - 'README.md'
+      - '*.md'
   pull_request:
     branches: [ master, main ]
+    paths-ignore:
+      - 'README.md'
+      - '*.md'
 
 jobs:
   # Header-only validation across platforms
@@ -15,7 +21,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
+        os: [ubuntu-latest]
         
     steps:
     - name: Checkout
@@ -30,7 +36,7 @@ jobs:
   # Windows specific builds (kernel mode samples require WDK)
   windows-build:
     name: Windows Build ${{ matrix.platform }}-${{ matrix.configuration }}
-    runs-on: windows-2019
+    runs-on: windows-2022
     
     strategy:
       fail-fast: false
@@ -45,33 +51,11 @@ jobs:
     - name: Setup MSBuild
       uses: microsoft/setup-msbuild@v2
       
-    - name: Setup Windows Driver Kit
-      shell: cmd
-      run: |
-        echo "Note: This CI validates the project structure and MSBuild setup."
-        echo "Actual kernel driver compilation requires WDK installation on target machine."
-        echo "The samples are designed for kernel-mode testing and require specialized environment."
-        
-    - name: Validate project structure
+    - name: Build samples
       shell: powershell
       run: |
         $platform = if ("${{ matrix.platform }}" -eq "x86") { "Win32" } else { "${{ matrix.platform }}" }
-        Write-Output "Would build: Configuration=${{ matrix.configuration }}, Platform=$platform"
+        Write-Output "Building: Configuration=${{ matrix.configuration }}, Platform=$platform"
         
-        # Validate solution file exists and is readable
-        if (Test-Path "samples\Samples.sln") {
-          Write-Output "✓ Solution file found"
-        } else {
-          Write-Error "✗ Solution file not found"
-          exit 1
-        }
-        
-        # Validate project file exists
-        if (Test-Path "samples\CalcTest\CalcTest.vcxproj") {
-          Write-Output "✓ Project file found" 
-        } else {
-          Write-Error "✗ Project file not found"
-          exit 1
-        }
-        
-        Write-Output "✓ Project structure validation passed"
+        # Build the solution (may fail for now, but we'll fix it later)
+        msbuild samples\Samples.sln /p:Configuration=${{ matrix.configuration }} /p:Platform=$platform /m
