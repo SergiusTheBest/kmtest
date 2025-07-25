@@ -293,7 +293,7 @@ void ReleaseMyDriverEnvironment()
 - Use it for teardown steps that are expensive or should only happen once per test session.
 
 # Samples
-There is a [samples](samples) folder that demonstrates usage of KmTest unit testing framework. To compile it you need Visual Studio 2015 and WDK10.
+There is a [samples](samples) folder that demonstrates usage of KmTest unit testing framework. To compile it you need Visual Studio 2022 and WDK10.
 
 # License
 KmTest is licensed under the [MPL version 2.0](http://mozilla.org/MPL/2.0/). You can freely use it in your commercial or opensource software.
