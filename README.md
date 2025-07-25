@@ -11,6 +11,9 @@ Kernel-mode C++ unit testing framework in BDD-style [![Build status](https://ci.
     - [BDD-style test](#bdd-style-test)
     - [Traditional test](#traditional-test)
     - [Require clauses](#require-clauses)
+  - [Global Preparation and Cleanup Routines](#global-preparation-and-cleanup-routines)
+    - [Global Preparation with KMTEST_PRE_RUN_ROUTINE](#global-preparation-with-kmtest_pre_run_routine)
+    - [Global Cleanup with KMTEST_POST_RUN_ROUTINE](#global-cleanup-with-kmtest_post_run_routine)
   - [Running tests](#running-tests)
     - [Test output](#test-output)
 - [Samples](#samples)
@@ -166,6 +169,47 @@ Requires clauses are used for assertions. There are several of them:
 |REQUIRE(expression)|bool|true|
 |REQUIRE_NT_SUCCESS(expression)|NTSTATUS|NT_SUCCESS(status)|
 |REQUIRE_NT_FAILURE(expression)|NTSTATUS|!NT_SUCCESS(status)|
+
+## Global Preparation and Cleanup Routines
+KmTest provides the ability to define global preparation and cleanup routines that run before and after all test scenarios. This is useful for setting up global state, initializing resources, or performing cleanup operations that need to happen once per test run.
+
+### Global Preparation with KMTEST_PRE_RUN_ROUTINE
+You can define a global preparation routine that will be executed before any test scenarios run by defining the `KMTEST_PRE_RUN_ROUTINE` macro:
+
+```cpp
+void GlobalSetup()
+{
+    // Initialize global resources
+    // Setup test environment
+    DbgPrint("Global test setup complete\n");
+}
+
+#define KMTEST_PRE_RUN_ROUTINE GlobalSetup
+
+#include <kmtest/kmtest.h>
+```
+
+The routine defined by `KMTEST_PRE_RUN_ROUTINE` will be called once at the beginning of the test run, before any scenarios are executed.
+
+### Global Cleanup with KMTEST_POST_RUN_ROUTINE
+Similarly, you can define a global cleanup routine that will be executed after all test scenarios have completed by defining the `KMTEST_POST_RUN_ROUTINE` macro:
+
+```cpp
+void GlobalCleanup()
+{
+    // Clean up global resources
+    // Restore test environment
+    DbgPrint("Global test cleanup complete\n");
+}
+
+#define KMTEST_POST_RUN_ROUTINE GlobalCleanup
+
+#include <kmtest/kmtest.h>
+```
+
+The routine defined by `KMTEST_POST_RUN_ROUTINE` will be called once at the end of the test run, after all scenarios have completed.
+
+**Note:** Both macros are optional. If not defined, no global preparation or cleanup routines will be executed. Make sure to define these macros before including the KmTest header file.
 
 ## Running tests
 Running KmTest based tests means starting a driver. It is highly recommended to do this inside a virtual machine. Any assertion failure will trigger a kernel debugger breakpoint or a BSOD if there is no debugger.
