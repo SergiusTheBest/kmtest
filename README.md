@@ -243,7 +243,7 @@ If you need to perform some global preparation before any test runs (for example
 
 **Example:**
 ```cpp
-#define KMTEST_PRE_RUN_ROUTINE() InitializeMyDriverEnvironment()
+#define KMTEST_PRE_RUN_ROUTINE InitializeMyDriverEnvironment
 
 void InitializeMyDriverEnvironment()
 {
@@ -261,7 +261,7 @@ If you need to perform cleanup after all tests have been executed (for example, 
 
 **Example:**
 ```cpp
-#define KMTEST_POST_RUN_ROUTINE() ReleaseMyDriverEnvironment()
+#define KMTEST_POST_RUN_ROUTINE ReleaseMyDriverEnvironment
 
 void ReleaseMyDriverEnvironment()
 {
