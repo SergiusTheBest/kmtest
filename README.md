@@ -35,8 +35,8 @@ There is a lack of unit testing frameworks that work in OS kernel. This library 
 - code sharing between steps in scenario
 
 ## Requirements
-- Windows 10 and higher
-- Visual Studio 2022 and higher
+- Windows XP and higher
+- Visual Studio 2010 and higher
 
 # Usage
 
