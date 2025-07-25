@@ -1,5 +1,0 @@
-/tmp/final_test/lib/cmake/kmtest/kmtestConfig.cmake
-/tmp/final_test/include/kmtest/kmtest.h
-/tmp/final_test/share/doc/kmtest/README.md
-/tmp/final_test/share/doc/kmtest/LICENSE
-/tmp/final_test/lib/cmake/kmtest/kmtestConfigVersion.cmake
