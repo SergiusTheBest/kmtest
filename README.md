@@ -42,14 +42,7 @@ There is a lack of unit testing frameworks that work in OS kernel. This library 
 
 ## Using with CMake
 
-KmTest provides a CMake interface target for easy integration with CMake-based projects:
-
-```cmake
-find_package(kmtest REQUIRED)
-target_link_libraries(your_target kmtest::kmtest)
-```
-
-Alternatively, you can use CMake's FetchContent to automatically download and use kmtest:
+KmTest provides a CMake interface target for easy integration with CMake-based projects using FetchContent:
 
 ```cmake
 include(FetchContent)
