@@ -5,6 +5,7 @@ Kernel-mode C++ unit testing framework in BDD-style [![Build status](https://ci.
   - [Features](#features)
   - [Requirements](#requirements)
 - [Usage](#usage)
+  - [Using with CMake](#using-with-cmake)
   - [Creating a test project](#creating-a-test-project)
   - [Main function](#main-function)
   - [Writing tests](#writing-tests)
@@ -48,12 +49,17 @@ find_package(kmtest REQUIRED)
 target_link_libraries(your_target kmtest::kmtest)
 ```
 
-To install kmtest for use with CMake:
+Alternatively, you can use CMake's FetchContent to automatically download and use kmtest:
 
-```bash
-mkdir build && cd build
-cmake ..
-cmake --install . --prefix /path/to/install
+```cmake
+include(FetchContent)
+FetchContent_Declare(
+  kmtest
+  GIT_REPOSITORY https://github.com/SergiusTheBest/kmtest.git
+  GIT_TAG        master
+)
+FetchContent_MakeAvailable(kmtest)
+target_link_libraries(your_target kmtest::kmtest)
 ```
 
 ## Creating a test project
