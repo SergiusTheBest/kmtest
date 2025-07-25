@@ -1,0 +1,6 @@
+/home/runner/work/kmtest/kmtest/build/CMakeFiles/edit_cache.dir
+/home/runner/work/kmtest/kmtest/build/CMakeFiles/rebuild_cache.dir
+/home/runner/work/kmtest/kmtest/build/CMakeFiles/list_install_components.dir
+/home/runner/work/kmtest/kmtest/build/CMakeFiles/install.dir
+/home/runner/work/kmtest/kmtest/build/CMakeFiles/install/local.dir
+/home/runner/work/kmtest/kmtest/build/CMakeFiles/install/strip.dir
