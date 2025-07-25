@@ -39,6 +39,23 @@ There is a lack of unit testing frameworks that work in OS kernel. This library 
 
 # Usage
 
+## Using with CMake
+
+KmTest provides a CMake interface target for easy integration with CMake-based projects:
+
+```cmake
+find_package(kmtest REQUIRED)
+target_link_libraries(your_target kmtest::kmtest)
+```
+
+To install kmtest for use with CMake:
+
+```bash
+mkdir build && cd build
+cmake ..
+cmake --install . --prefix /path/to/install
+```
+
 ## Creating a test project
 Create an empty driver project and do the following:
 - add a path to `kmtest/inlcude` into the project include paths

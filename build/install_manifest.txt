@@ -1,5 +1,5 @@
-/tmp/test_install/lib/cmake/kmtest/kmtestConfig.cmake
-/tmp/test_install/include/kmtest/kmtest.h
-/tmp/test_install/share/doc/kmtest/README.md
-/tmp/test_install/share/doc/kmtest/LICENSE
-/tmp/test_install/lib/cmake/kmtest/kmtestConfigVersion.cmake
+/tmp/final_test/lib/cmake/kmtest/kmtestConfig.cmake
+/tmp/final_test/include/kmtest/kmtest.h
+/tmp/final_test/share/doc/kmtest/README.md
+/tmp/final_test/share/doc/kmtest/LICENSE
+/tmp/final_test/lib/cmake/kmtest/kmtestConfigVersion.cmake
