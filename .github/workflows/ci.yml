@@ -1,0 +1,61 @@
+name: CI
+
+on:
+  push:
+    branches: [ master, main ]
+    paths-ignore:
+      - .editorconfig
+      - .gitignore
+      - '*.md'
+  pull_request:
+    branches: [ master, main ]
+    paths-ignore:
+      - .editorconfig
+      - .gitignore
+      - '*.md'
+  workflow_dispatch:
+
+jobs:
+  # Header-only validation across platforms
+  header-validation:
+    name: Header validation on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    
+    strategy:
+      fail-fast: true
+      matrix:
+        os: [ubuntu-latest]
+        
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      
+    - name: Configure CMake
+      run: cmake -B build -DKMTEST_BUILD_SAMPLES=OFF
+      
+    - name: Build
+      run: cmake --build build
+
+  # Windows specific builds (kernel mode samples require WDK)
+  windows-build:
+    name: Windows Build ${{ matrix.platform }}-${{ matrix.configuration }}
+    runs-on: windows-2022
+    
+    strategy:
+      fail-fast: true
+      matrix:
+        platform: [x64]
+        configuration: [Debug, Release]
+    
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      
+    - name: Setup MSBuild
+      uses: microsoft/setup-msbuild@v2
+      
+    - name: Build samples
+      shell: powershell
+      run: |
+        # Build the solution (may fail for now, but we'll fix it later)
+        msbuild samples\Samples.sln /p:Configuration=${{ matrix.configuration }} /p:Platform=${{ matrix.platform }} /m
