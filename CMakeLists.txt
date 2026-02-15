@@ -1,7 +1,7 @@
 if(${CMAKE_VERSION} VERSION_LESS 3.27.0)
     cmake_minimum_required(VERSION 3.0)
 else()
-    cmake_minimum_required(VERSION 3.10)
+    cmake_minimum_required(VERSION 3.27)
 endif()
 
 project(kmtest VERSION 0.9.1 LANGUAGES CXX)
@@ -14,7 +14,7 @@ else()
 endif()
 
 # options
-option(KMTEST_BUILD_SAMPLES "Build ${PROJECT_NAME} samples" OFF)
+option(KMTEST_BUILD_SAMPLES "Build ${PROJECT_NAME} samples" ${IS_TOPLEVEL_PROJECT})
 option(KMTEST_INSTALL "Generate ${PROJECT_NAME} install target" ${IS_TOPLEVEL_PROJECT})
 option(KMTEST_BUILD_TESTS "Build tests" OFF)
 
