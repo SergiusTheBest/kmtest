@@ -1,10 +1,13 @@
 if(${CMAKE_VERSION} VERSION_LESS 3.27.0)
-    cmake_minimum_required(VERSION 3.0)
+    cmake_minimum_required(VERSION 3.1)
 else()
     cmake_minimum_required(VERSION 3.27)
 endif()
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_EXTENSIONS OFF)
 
 project(Samples)
 

@@ -1,5 +1,5 @@
 if(${CMAKE_VERSION} VERSION_LESS 3.27.0)
-    cmake_minimum_required(VERSION 3.0)
+    cmake_minimum_required(VERSION 3.1)
 else()
     cmake_minimum_required(VERSION 3.27)
 endif()
@@ -29,6 +29,7 @@ target_include_directories(${PROJECT_NAME}
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
 )
+target_compile_features(${PROJECT_NAME} INTERFACE cxx_std_17)
 
 if(KMTEST_BUILD_SAMPLES)
     # add a pseudo-project to make kmtest headers visible in IDE
