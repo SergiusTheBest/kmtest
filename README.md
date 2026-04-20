@@ -47,9 +47,9 @@ Keep one framework, one test style, and shared test code across both user-mode a
 ## Requirements
 - CMake 3.11 and higher
 - C++17 compatible compiler:
-  - Visual Studio 2017 and higher (msvc)
-  - gcc 7.0 and higher
-  - clang 4.0 and higher
+  - Visual Studio 2017 and higher (MSVC)
+  - GCC 7.0 and higher
+  - Clang 4.0 and higher
 
 For Windows kernel-mode driver tests, WDK is required.
 
