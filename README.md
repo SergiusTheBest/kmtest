@@ -1,13 +1,17 @@
 # KmTest
-Kernel-mode C++ unit testing framework in BDD-style [![CI](https://github.com/SergiusTheBest/kmtest/actions/workflows/ci.yml/badge.svg)](https://github.com/SergiusTheBest/kmtest/actions/workflows/ci.yml)
+Kernel-mode (Windows) and user-mode (Windows, Linux) C++ unit testing framework in BDD-style [![CI](https://github.com/SergiusTheBest/kmtest/actions/workflows/ci.yml/badge.svg)](https://github.com/SergiusTheBest/kmtest/actions/workflows/ci.yml)
 
 - [Introduction](#introduction)
   - [Features](#features)
   - [Requirements](#requirements)
 - [Usage](#usage)
-  - [Using with CMake](#using-with-cmake)
-  - [Creating a test project](#creating-a-test-project)
-  - [Main function](#main-function)
+  - [Integration](#integration)
+    - [Using with CMake](#using-with-cmake)
+    - [Visual Studio driver project (without CMake)](#visual-studio-driver-project-without-cmake)
+  - [Entry points](#entry-points)
+    - [User-mode (Windows, Linux)](#user-mode-windows-linux)
+    - [Kernel-mode (Windows)](#kernel-mode-windows)
+    - [Accessing driver context](#accessing-driver-context)
   - [Writing tests](#writing-tests)
     - [BDD-style test](#bdd-style-test)
       - [Code sharing](#code-sharing)
@@ -24,23 +28,36 @@ Kernel-mode C++ unit testing framework in BDD-style [![CI](https://github.com/Se
 - [Version history](#version-history)
 
 # Introduction
-There is a lack of unit testing frameworks that work in OS kernel. This library closes that gap and is targeted for Windows driver developers.
+There is a lack of unit testing frameworks that work in the OS kernel. This library closes that gap and supports both:
+- kernel mode on Windows (driver testing)
+- user mode on Windows and Linux
+
+Keep one framework, one test style, and shared test code across both user-mode and kernel-mode targets.
 
 ## Features
-- designed for testing kernel-mode code
-- can run in user mode (for testing mode-independent code)
+- designed for testing kernel-mode code on Windows
+- can run in user mode on Windows and Linux
+- CMake-based project with straightforward CMake integration
+- one framework for both user-mode and kernel-mode tests
 - header-only
 - easy to use
 - BDD-style approach for writing unit tests (as well as a traditional one)
 - code sharing between steps in scenario
 
 ## Requirements
-- Windows XP and higher
-- Visual Studio 2010 and higher
+- CMake 3.11 and higher
+- C++17 compatible compiler:
+  - Visual Studio 2017 and higher (msvc)
+  - gcc 7.0 and higher
+  - clang 4.0 and higher
+
+For Windows kernel-mode driver tests, WDK is required.
 
 # Usage
 
-## Using with CMake
+## Integration
+
+### Using with CMake
 
 KmTest provides a CMake interface target for easy integration with CMake-based projects using FetchContent:
 
@@ -55,31 +72,54 @@ FetchContent_MakeAvailable(kmtest)
 target_link_libraries(your_target kmtest::kmtest)
 ```
 
-## Creating a test project
-Create an empty driver project and do the following:
-- add a path to `kmtest/inlcude` into the project include paths
-- add `#include <kmtest/kmtest.h>` into your new cpp/h files (if you have precompiled headers it is a good place to add this include there)
+#### CMake options
 
-This is a sample precompiled header:
+- `KMTEST_BUILD_SAMPLES` (default: ON for top-level builds): build the sample projects.
+- `KMTEST_INSTALL` (default: ON for top-level builds): generate install/export targets.
+- `KMTEST_BUILD_TESTS` (default: OFF): build internal tests (if present).
+
+### Visual Studio driver project (without CMake)
+
+1. Create a WDK driver project in Visual Studio.
+2. Add the kmtest include directory to Additional Include Directories.
+3. In test source files, include `<kmtest/kmtest.h>` (`ntddk.h` is included automatically in kernel mode).
+4. Write tests using `SCENARIO`, `GIVEN`, `WHEN`, `THEN`, and `REQUIRE`.
+
+## Entry points
+
+### User-mode (Windows, Linux)
+
+Define `main` in exactly one translation unit using `KMTEST_MAIN()`:
+
 ```cpp
-#pragma once
-#include <ntddk.h>
+#include <kmtest/kmtest.h>
+
+KMTEST_MAIN();
+```
+
+### Kernel-mode (Windows)
+
+Include the framework header; `ntddk.h` is included automatically in kernel mode:
+
+```cpp
 #include <kmtest/kmtest.h>
 ```
 
-## Main function
-`DriverEntry` or `main` is automatically created by the library, so you don't need to write it. 
+The framework provides `DriverEntry` automatically; do not define it manually.
 
-A driver object and a registry path can be accessed via `kmtest::g_driverObject` and `kmtest::g_registryPath`.
+### Accessing driver context
 
+In kernel mode, a driver object and registry path are available via:
+- `kmtest::g_driverObject`
+- `kmtest::g_registryPath`
 
 ## Writing tests
-You can write tests cases in 2 styles:
+You can write test cases in 2 styles:
 - BDD-style (using GIVEN-WHEN-THEN clauses)
 - traditional
 
 ### BDD-style test
-BDD-style tests requires more efforts in writing but they are superior in maintaining than traditional tests. The basic test structure is shown below (for more advanced usage read about [code sharing](#code-sharing)):
+BDD-style tests require more effort to write, but they are often easier to maintain than traditional tests. The basic test structure is shown below (for more advanced usage read about [code sharing](#code-sharing)):
 ```cpp
 SCENARIO("Addition operation")
 {
@@ -104,7 +144,7 @@ Where:
 - `REQUIRE` is used for assertions (can be placed in any block)
 
 #### Code sharing
-A great feature of BDD-style tests is that a `SCENARIO` can have several `GIVEN` clauses, a `GIVEN` can have several `WHEN` clauses, a `WHEN` can have several `THEN` clauses. KmTest framework will run all combinations as independed test cases. The sample below will produce 2 test cases (`2+3=5` and `2+0=2`):
+A great feature of BDD-style tests is that a `SCENARIO` can have several `GIVEN` clauses, a `GIVEN` can have several `WHEN` clauses, and a `WHEN` can have several `THEN` clauses. KmTest runs all combinations as independent test cases. The sample below produces 2 test cases (`2+3=5` and `2+0=2`):
 ```cpp
 SCENARIO("Addition operation")
 {
@@ -188,74 +228,44 @@ Requires clauses are used for assertions. There are several of them:
 |REQUIRE_NT_FAILURE(expression)|NTSTATUS|!NT_SUCCESS(status)|
 
 ## Running tests
-Running KmTest based tests means starting a driver. It is highly recommended to do this inside a virtual machine. Any assertion failure will trigger a kernel debugger breakpoint or a BSOD if there is no debugger.
+### User mode (Windows, Linux)
+Run the produced test executable, for example `CalcTest`.
 
-*Refer to [samples/CalcTest/CalcTest.cmd](samples/CalcTest/CalcTest.cmd) for how to start a driver from the command line.*
+### Kernel mode (Windows)
+Running kernel-mode tests means starting a driver. It is highly recommended to do this inside a virtual machine. Any assertion failure will trigger a kernel debugger breakpoint or a BSOD if there is no debugger.
+
+*Refer to [samples/CalcTest/CalcTestDriver.cmd](samples/CalcTest/CalcTestDriver.cmd) for how to start a driver from the command line.*
 
 ### Test output
-KmTest writes messages to the debug output. It can be viewed by WinDbg, DbgView or similar tools. A sample test output is demonstrated below:
+KmTest writes messages to the debug output. In kernel mode, you can view them in WinDbg, DbgView, or similar tools. In user mode, output is printed to standard output.
+
+A shortened sample output is shown below:
 
 ```
-**************************************************
+*******************************************************
 * KMTEST BEGIN
-**************************************************
---------------------------------------------------
+*******************************************************
+-------------------------------------------------------
 SCENARIO: Addition operation
---------------------------------------------------
+-------------------------------------------------------
 GIVEN: x = 2
   WHEN: y = 3
     THEN: the sum will be 5
-GIVEN: x = 2
   WHEN: y = 0
     THEN: the sum will be 2
-GIVEN: x = 2
-  WHEN: y = -2
-    THEN: the sum will be 0
-GIVEN: x = -2
-  WHEN: y = 3
-    THEN: the sum will be 1
-GIVEN: x = -2
-  WHEN: y = -1
-    THEN: the sum will be -3
- 
-ASSERTIONS PASSED: 5
- 
---------------------------------------------------
-SCENARIO: Multiplication operation
---------------------------------------------------
- 
-ASSERTIONS PASSED: 4
- 
---------------------------------------------------
-SCENARIO: Subtraction operation
---------------------------------------------------
-GIVEN: x = 8
-  WHEN: y = 3
-    THEN: the difference will be 5
-GIVEN: x = 8
-  WHEN: y = 0
-    THEN: the difference will be 8
-GIVEN: x = 8
-  WHEN: y = -2
-    THEN: the difference will be 10
-GIVEN: x = -3
-  WHEN: y = 2
-    THEN: the difference will be -5
-GIVEN: x = -3
-  WHEN: y = -1
-    THEN: the difference will be -2
- 
-ASSERTIONS PASSED: 5
- 
-**************************************************
-* KMTEST END (scenarios: 3, assertions: 14)
-**************************************************
+
+PASSED (assertions: 2)
+
+*******************************************************
+* KMTEST PASSED (scenarios: 3, assertions: 14)
+*******************************************************
 ```
 
 ### Global Preparation and Cleanup Routines
 
-KMTEST_PRE_RUN_ROUTINE
-KMTEST_POST_RUN_ROUTINE
+You can define the following optional macros to run one-time setup/teardown code:
+- `KMTEST_PRE_RUN_ROUTINE`
+- `KMTEST_POST_RUN_ROUTINE`
 
 #### Global Preparation with `KMTEST_PRE_RUN_ROUTINE`
 
@@ -269,7 +279,6 @@ void InitializeMyDriverEnvironment()
 {
     // Initialization code here
 }
-
 ```
 - The function must have no parameters.
 - This routine runs once before all test cases.
@@ -293,10 +302,14 @@ void ReleaseMyDriverEnvironment()
 - Use it for teardown steps that are expensive or should only happen once per test session.
 
 # Samples
-There is a [samples](samples) folder that demonstrates usage of KmTest unit testing framework. To compile it you need Visual Studio 2022 and WDK10.
+There is a [samples](samples) folder that demonstrates usage of the KmTest unit testing framework.
+
+- `samples/CalcLib`: tiny calculator library used by sample tests.
+- `samples/CalcTest`: user-mode test executable (`CalcTest`) on Windows and Linux.
+- `samples/CalcTest`: kernel-mode driver test (`CalcTestDriver`) on Windows when WDK 10 is available.
 
 # License
-KmTest is licensed under the [MPL version 2.0](http://mozilla.org/MPL/2.0/). You can freely use it in your commercial or opensource software.
+KmTest is licensed under the [MPL version 2.0](http://mozilla.org/MPL/2.0/). You can freely use it in your commercial or open-source software.
 
 # Acknowledgment
 Thanks to Phil Nash and his [Catch C++ test framework](https://github.com/philsquared/Catch) for BDD-style inspiration.
