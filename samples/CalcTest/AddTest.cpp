@@ -1,4 +1,4 @@
-#include "StdAfx.h"
+#include <kmtest/kmtest.h>
 #include "Calculator.h"
 
 // A demo scenario that shows the most of the test framework usage.

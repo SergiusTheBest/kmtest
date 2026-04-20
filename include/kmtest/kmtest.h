@@ -2,6 +2,8 @@
 
 #ifndef _KERNEL_MODE
     #include <stdio.h>
+#else
+    #include <ntddk.h>
 #endif
 
 #if defined(_MSC_VER)
@@ -16,9 +18,9 @@
     #define KMTEST_SUPPRESS_CONDITIONAL_EXPRESSION_IS_CONSTANT()    __pragma(warning(suppress: 4127 /*conditional expression is constant*/))
 #elif defined(__GNUC__) || defined(__clang__)
     #define KMTEST_SECTION(name)                __attribute__((section(name)))
-    #define KMTEST_SECTION_START(type, var)     extern "C" const type* const __start_KMTEST; const type* const var = __start_KMTEST;
+    #define KMTEST_SECTION_START(type, var)     extern "C" const type* const __start_KMTEST; inline const type* const& var = __start_KMTEST;
     #define KMTEST_SECTION_MIDDLE               KMTEST_SECTION("KMTEST")
-    #define KMTEST_SECTION_END(type, var)       extern "C" const type* const __stop_KMTEST; const type* const var = __stop_KMTEST;
+    #define KMTEST_SECTION_END(type, var)       extern "C" const type* const __stop_KMTEST; inline const type* const& var = __stop_KMTEST;
     #define KMTEST_SUPPRESS_CONDITIONAL_EXPRESSION_IS_CONSTANT()
 #else
     #error "Unknown compiler"
