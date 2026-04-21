@@ -23,7 +23,7 @@ if(WIN32)
     )
     FetchContent_MakeAvailable(FindWDK)
     list(APPEND CMAKE_MODULE_PATH ${FindWDK_SOURCE_DIR}/cmake)
-    find_package(WDK REQUIRED)
+    find_package(WDK)
 endif()
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
