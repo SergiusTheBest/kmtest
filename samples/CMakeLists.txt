@@ -19,7 +19,6 @@ if(WIN32)
         FindWDK
         GIT_REPOSITORY https://github.com/SergiusTheBest/FindWDK
         GIT_TAG        1e41c97ed8511bd1085eb707e2c357d9f159963f
-        GIT_SHALLOW    true
     )
     FetchContent_MakeAvailable(FindWDK)
     list(APPEND CMAKE_MODULE_PATH ${FindWDK_SOURCE_DIR}/cmake)
