@@ -76,8 +76,8 @@
     if (curClause.then == 0) curClause.then = counter; \
     if (curClause.then < counter && !nextClauseSet) { nextClause.then = counter; nextClauseSet = true; } \
     else if (counter == curClause.then && reportThen(desc))
-  
-#define REQUIRE(expression) \
+
+    #define REQUIRE(expression) \
     ++assertions; \
     KMTEST_SUPPRESS_CONDITIONAL_EXPRESSION_IS_CONSTANT() \
     if (!(expression)) \
