@@ -1,4 +1,4 @@
-#include "StdAfx.h"
+#include <kmtest/kmtest.h>
 #include "Calculator.h"
 
 // A minimal scenario for those who do not want to write GIVEN-WHEN-THEN clauses.

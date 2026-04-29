@@ -1,4 +1,4 @@
-#include "StdAfx.h"
+#include <kmtest/kmtest.h>
 #include "Calculator.h"
 
 // Just one more sample scenario (very close to "addition operation").

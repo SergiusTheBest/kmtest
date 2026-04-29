@@ -1,5 +1,5 @@
 @echo off
-set test=CalcTest
+set test=CalcTestDriver
 sc delete %test% > nul
 sc create %test% binPath= "%cd%\%test%.sys" type= kernel
 sc start %test%

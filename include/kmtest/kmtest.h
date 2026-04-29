@@ -1,5 +1,31 @@
 #pragma once
 
+#ifndef _KERNEL_MODE
+    #include <stdio.h>
+#else
+    #include <ntddk.h>
+#endif
+
+#if defined(_MSC_VER)
+    #define KMTEST_SECTION(name)                __declspec(dllexport) __declspec(allocate(name))
+    #define KMTEST_SECTION_START(type, var)     KMTEST_SECTION("KMTEST$__a") inline const type* const var = nullptr
+    #define KMTEST_SECTION_MIDDLE               KMTEST_SECTION("KMTEST$__m")
+    #define KMTEST_SECTION_END(type, var)       KMTEST_SECTION("KMTEST$__z") inline const type* const var = nullptr
+    #pragma section("KMTEST$__a", read)
+    #pragma section("KMTEST$__m", read)
+    #pragma section("KMTEST$__z", read)
+    #pragma comment(linker, "/merge:KMTEST=.rdata")
+    #define KMTEST_SUPPRESS_CONDITIONAL_EXPRESSION_IS_CONSTANT()    __pragma(warning(suppress: 4127 /*conditional expression is constant*/))
+#elif defined(__GNUC__) || defined(__clang__)
+    #define KMTEST_SECTION(name)                __attribute__((section(name), used))
+    #define KMTEST_SECTION_START(type, var)     extern "C" const type* const __start_KMTEST; inline const type* const& var = __start_KMTEST;
+    #define KMTEST_SECTION_MIDDLE               KMTEST_SECTION("KMTEST")
+    #define KMTEST_SECTION_END(type, var)       extern "C" const type* const __stop_KMTEST; inline const type* const& var = __stop_KMTEST;
+    #define KMTEST_SUPPRESS_CONDITIONAL_EXPRESSION_IS_CONSTANT()
+#else
+    #error "Unknown compiler"
+#endif
+
 #define KMTEST_IMPL_CAT(x, y)   x##y
 #define KMTEST_CAT(x, y)        KMTEST_IMPL_CAT(x, y)
 
@@ -8,7 +34,7 @@
     #define KMTEST_ASSERT ::RtlAssert
 #else
     #define KMTEST_PRINT printf
-    #define KMTEST_ASSERT
+    #define KMTEST_ASSERT(expression, file, line, dummy) fprintf(stderr, "ASSERTION FAILED: %s\nFILE: %s\nLINE: %d\n", expression, file, line)
 #endif
 
 #define SCENARIO(name) KMTEST_IMPL_SCENARIO(name, __COUNTER__)
@@ -16,8 +42,8 @@
 #define KMTEST_IMPL_SCENARIO(name, counter) \
     namespace kmtest \
     { \
-        static void KMTEST_CAT(testFunc, counter)(Clause curClause, Clause& nextClause, int& assertions, int& failures, bool nextClauseSet = false); \
-        static void KMTEST_CAT(testFuncStub, counter)(Clause curClause, Clause& nextClause, int& assertions, int& failures) \
+        static void KMTEST_CAT(testFunc, counter)([[maybe_unused]] Clause curClause, [[maybe_unused]] Clause& nextClause, [[maybe_unused]] int& assertions, [[maybe_unused]] int& failures, [[maybe_unused]] bool nextClauseSet = false); \
+        static void KMTEST_CAT(testFuncStub, counter)([[maybe_unused]] Clause curClause, [[maybe_unused]] Clause& nextClause, [[maybe_unused]] int& assertions, [[maybe_unused]] int& failures) \
         { \
             if (curClause == Clause()) reportScenarioBegin(name); \
             KMTEST_CAT(testFunc, counter)(curClause, nextClause, assertions, failures); \
@@ -25,11 +51,10 @@
         namespace \
         { \
             const TestFunc KMTEST_CAT(testEntry, counter) = KMTEST_CAT(testFuncStub, counter);  \
-            __declspec(dllexport) __declspec(allocate("KMTEST$__m")) auto KMTEST_CAT(testEntryPtr, counter) = reinterpret_cast<const TestEntry*>(&KMTEST_CAT(testEntry, counter)); \
+            KMTEST_SECTION_MIDDLE [[maybe_unused]] auto KMTEST_CAT(testEntryPtr, counter) = reinterpret_cast<const TestEntry*>(&KMTEST_CAT(testEntry, counter)); \
         } \
     } \
-    __pragma(warning(suppress: 4100 /*unreferenced formal parameter*/)) \
-    static void KMTEST_CAT(kmtest::testFunc, counter)(Clause curClause, Clause& nextClause, int& assertions, int& failures, bool nextClauseSet)
+    static void KMTEST_CAT(kmtest::testFunc, counter)([[maybe_unused]] Clause curClause, [[maybe_unused]] Clause& nextClause, [[maybe_unused]] int& assertions, [[maybe_unused]] int& failures, [[maybe_unused]] bool nextClauseSet)
 
 #define GIVEN(desc) KMTEST_IMPL_GIVEN(desc, __COUNTER__)
 
@@ -52,9 +77,9 @@
     if (curClause.then < counter && !nextClauseSet) { nextClause.then = counter; nextClauseSet = true; } \
     else if (counter == curClause.then && reportThen(desc))
 
-#define REQUIRE(expression) \
+    #define REQUIRE(expression) \
     ++assertions; \
-    __pragma(warning(suppress: 4127 /*conditional expression is constant*/)) \
+    KMTEST_SUPPRESS_CONDITIONAL_EXPRESSION_IS_CONSTANT() \
     if (!(expression)) \
     { \
         KMTEST_ASSERT(const_cast<char*>(#expression), const_cast<char*>(__FILE__), __LINE__, nullptr); \
@@ -66,11 +91,6 @@
 
 #define REQUIRE_NT_FAILURE(expression) \
     REQUIRE(!NT_SUCCESS(expression))
-
-#pragma section("KMTEST$__a", read)
-#pragma section("KMTEST$__m", read)
-#pragma section("KMTEST$__z", read)
-#pragma comment(linker, "/merge:KMTEST=.rdata")
 
 namespace kmtest
 {
@@ -159,8 +179,8 @@ namespace kmtest
         const TestFunc m_func;
     };
 
-    __declspec(selectany) __declspec(allocate("KMTEST$__a")) const TestEntry* testEntryA = nullptr;
-    __declspec(selectany) __declspec(allocate("KMTEST$__z")) const TestEntry* testEntryZ = nullptr;
+    KMTEST_SECTION_START(TestEntry, testEntryA);
+    KMTEST_SECTION_END(TestEntry, testEntryZ);
 
     inline int run()
     {
@@ -176,7 +196,7 @@ namespace kmtest
         int assertions = 0;
         int failures = 0;
 
-        for (const TestEntry** testEntry = &testEntryA; testEntry < &testEntryZ; ++testEntry)
+        for (auto testEntry = &testEntryA; testEntry < &testEntryZ; ++testEntry)
         {
             if (!*testEntry)
             {
@@ -230,8 +250,5 @@ extern "C" inline NTSTATUS DriverEntry(_In_ DRIVER_OBJECT* driverObject, _In_ PU
     return STATUS_SUCCESS;
 }
 #else
-int main()
-{
-    return kmtest::run();
-}
+#define KMTEST_MAIN() int main() { return kmtest::run(); }
 #endif
