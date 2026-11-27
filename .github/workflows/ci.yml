@@ -6,32 +6,51 @@ on:
     paths-ignore:
       - .editorconfig
       - .gitignore
-      - '*.md'
+      - .github/dependabot.yml
+      - LICENSE
+      - '**/*.md'
   pull_request:
     branches: [ master, main, develop ]
     paths-ignore:
       - .editorconfig
       - .gitignore
-      - '*.md'
+      - .github/dependabot.yml
+      - LICENSE
+      - '**/*.md'
   workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 jobs:
   build:
-    name: ${{ matrix.os }} ${{ matrix.configuration }}
-    runs-on: ${{ matrix.os }}
+    name: ${{ matrix.toolchain.name }} ${{ matrix.configuration }}
+    runs-on: ${{ matrix.toolchain.os }}
+    timeout-minutes: 15
 
     strategy:
       fail-fast: true
       matrix:
-        os: [ubuntu-latest, windows-2022]
+        toolchain:
+        - { name: ubuntu gcc, os: ubuntu-latest, cmake_args: -DCMAKE_CXX_COMPILER=g++ }
+        - { name: ubuntu clang, os: ubuntu-latest, cmake_args: -DCMAKE_CXX_COMPILER=clang++ }
+        - { name: windows-2022 msvc, os: windows-2022 }
+        - { name: windows-2025 msvc, os: windows-2025 }
         configuration: [Debug, Release]
 
     steps:
     - name: Checkout
-      uses: actions/checkout@v6
+      uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
     - name: Configure CMake
-      run: cmake -B build -DCMAKE_BUILD_TYPE=${{ matrix.configuration }}
+      run: cmake -B build -DCMAKE_BUILD_TYPE=${{ matrix.configuration }} ${{ matrix.toolchain.cmake_args }}
 
     - name: Build
-      run: cmake --build build --config ${{ matrix.configuration }}
+      run: cmake --build build --config ${{ matrix.configuration }} --parallel
+
+    - name: Install
+      run: cmake --install build --config ${{ matrix.configuration }} --prefix "${{ runner.temp }}/install"

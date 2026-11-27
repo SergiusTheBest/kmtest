@@ -51,7 +51,7 @@
         namespace \
         { \
             const TestFunc KMTEST_CAT(testEntry, counter) = KMTEST_CAT(testFuncStub, counter);  \
-            KMTEST_SECTION_MIDDLE [[maybe_unused]] auto KMTEST_CAT(testEntryPtr, counter) = reinterpret_cast<const TestEntry*>(&KMTEST_CAT(testEntry, counter)); \
+            [[maybe_unused]] KMTEST_SECTION_MIDDLE auto KMTEST_CAT(testEntryPtr, counter) = reinterpret_cast<const TestEntry*>(&KMTEST_CAT(testEntry, counter)); \
         } \
     } \
     static void KMTEST_CAT(kmtest::testFunc, counter)([[maybe_unused]] Clause curClause, [[maybe_unused]] Clause& nextClause, [[maybe_unused]] int& assertions, [[maybe_unused]] int& failures, [[maybe_unused]] bool nextClauseSet)
